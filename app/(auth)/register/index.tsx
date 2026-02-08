@@ -4,8 +4,10 @@ import { Input } from "@/components/ui/input"
 import { Link } from "expo-router"
 import { View, Text, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useRouter } from "expo-router"
 
 const Register = () => {
+  const router = useRouter();
   return (
     <SafeAreaView style={{ backgroundColor: colors.background, height: '100%' }}>
       <View className="p-5">
@@ -51,6 +53,7 @@ const Register = () => {
         <Button
           style={{ backgroundColor: colors.primary }}
           className="rounded-full mt-5"
+          onPress={() => router.replace("/tabs/home")}
         >
           <Text
             style={{ fontFamily: "readexRegular" }}

@@ -35,7 +35,7 @@ const index = () => {
               shadowRadius: 4,
             }}
             className="border shadow-lg h-25"
-            onPress={() => router.push("/register")}
+            onPress={() => router.replace("/register")}
           >
             <Text
               className="text-white"
