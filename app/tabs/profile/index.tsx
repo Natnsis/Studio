@@ -1,10 +1,17 @@
+import { colors } from '@/assets/colors'
 import { View, Text } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Profile = () => {
   return (
-    <View>
+    <SafeAreaView
+      style={{
+        backgroundColor: colors.background,
+        height: '100%'
+      }}
+    >
       <Text>hehe</Text>
-    </View>
+    </SafeAreaView>
   )
 }
 
