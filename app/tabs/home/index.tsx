@@ -1,11 +1,12 @@
 import { colors } from '@/assets/colors'
-import { View, Text, Dimensions } from 'react-native'
+import { View, Text, Dimensions, FlatList, TouchableOpacity, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
 import { Feather } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { history, History } from '@/contants/history';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
@@ -100,7 +101,30 @@ const Home = () => {
         </View>
 
         <View className='flex-1'>
-          {/*flatlist here*/}
+          <FlatList<History>
+            data={history}
+            keyExtractor={(item) => item.id.toString()}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity className='flex-row justify-between'>
+                <View>
+                  <Image
+                    source={require("assets/images/history/history1.jpg")}
+                    style={{ width: 60, height: 60 }}
+                  />
+                  <Text>{item.title}</Text>
+                </View>
+                <View>
+                  <Button
+                    size="icon"
+                    style={{ backgroundColor: colors.primary }}
+                    className='rounded-full flex-row jusitfy-center'>
+                    <Image source={require("assets/images/play.svg")} />
+                  </Button>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         </View>
 
       </View>
