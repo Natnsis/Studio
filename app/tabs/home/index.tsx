@@ -85,10 +85,7 @@ const Home = () => {
             Recently Played
           </Text>
           <Link
-            style={{
-              fontFamily: "readexBold", fontSize: 18
-            }}
-            href="/"
+            href="/inner/history"
           >
             <Text
               style={{
@@ -109,7 +106,7 @@ const Home = () => {
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <View className='flex-row justify-between mb-3'>
-                <View className='flex-row'>
+                <View className='flex-row w-[60%]'>
                   <Image
                     source={require("assets/images/history/history1.jpg")}
                     style={{ width: 70, height: 70 }}
