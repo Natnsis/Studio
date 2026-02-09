@@ -5,12 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
 import { Feather } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { history, History } from '@/contants/history';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
   const displayedItem = history.slice(0, 6)
+  const router = useRouter()
   return (
     <SafeAreaView>
       <View
@@ -132,6 +133,7 @@ const Home = () => {
                   <Button
                     style={{ backgroundColor: colors.primary }}
                     className="rounded-full justify-center items-center"
+                    onPress={() => router.replace("/inner/player")}
                   >
                     <Image
                       source={require('@/assets/images/play.png')}

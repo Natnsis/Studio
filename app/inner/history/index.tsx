@@ -130,6 +130,7 @@ const HistoryScreen = () => {
                   <Button
                     style={{ backgroundColor: colors.primary }}
                     className="rounded-full justify-center items-center"
+                    onPress={() => router.replace("/inner/player")}
                   >
                     <Image
                       source={require('@/assets/images/play.png')}
