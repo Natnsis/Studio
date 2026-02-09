@@ -87,8 +87,8 @@ const Player = () => {
         </Button>
 
         <View className="flex-row justify-between items-center">
-          <Button variant="ghost">
-            <Feather name="chevron-left" size={30} />
+          <Button variant="ghost" className="h-full">
+            <Feather name="skip-back" size={30} />
           </Button>
 
           <Button
@@ -97,8 +97,8 @@ const Player = () => {
             <Feather name="play" size={45} color={colors.primary} />
           </Button>
 
-          <Button variant="ghost">
-            <Feather name="chevron-right" size={30} />
+          <Button variant="ghost" className="h-full">
+            <Feather name="skip-forward" size={30} />
           </Button>
         </View>
 
