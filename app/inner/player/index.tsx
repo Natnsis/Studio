@@ -1,11 +1,11 @@
 import { View, Text } from "react-native"
 
-const History = () => {
+const Player = () => {
   return (
     <View>
-      <Text>History</Text>
+      <Text>Player</Text>
     </View>
   )
 }
 
-export default History
+export default Player

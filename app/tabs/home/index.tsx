@@ -10,6 +10,7 @@ import { history, History } from '@/contants/history';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
+  const displayedItem = history.slice(0, 6)
   return (
     <SafeAreaView>
       <View
@@ -100,35 +101,59 @@ const Home = () => {
           </Link>
         </View>
 
+        {/*flatlist*/}
         <View className='flex-1'>
           <FlatList<History>
-            data={history}
+            data={displayedItem}
             keyExtractor={(item) => item.id.toString()}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <TouchableOpacity className='flex-row justify-between'>
-                <View>
+              <View className='flex-row justify-between mb-3'>
+                <View className='flex-row'>
                   <Image
                     source={require("assets/images/history/history1.jpg")}
-                    style={{ width: 60, height: 60 }}
+                    style={{ width: 70, height: 70 }}
+                    className='rounded-sm border'
                   />
-                  <Text>{item.title}</Text>
+                  <View className='ml-2 flex-col justify-center'>
+                    <Text
+                      style={{
+                        fontFamily: "readexBold", fontSize: 14
+                      }}
+                      className='capitalize'>
+                      {item.title}
+                    </Text>
+                    <Text
+                      style={{
+                        fontFamily: "readexExtraLight", fontSize: 12
+                      }}
+                      className='capitalize'
+                    >{item.name}</Text>
+                  </View>
                 </View>
-                <View>
+                <View className='flex-col justify-center'>
                   <Button
-                    size="icon"
                     style={{ backgroundColor: colors.primary }}
-                    className='rounded-full flex-row jusitfy-center'>
-                    <Image source={require("assets/images/play.svg")} />
+                    className="rounded-full justify-center items-center"
+                  >
+                    <Image
+                      source={require('@/assets/images/play.png')}
+                      style={{
+                        width: 15,
+                        height: 15,
+                        tintColor: 'white',
+                      }}
+                      resizeMode="contain"
+                    />
                   </Button>
                 </View>
-              </TouchableOpacity>
+              </View>
             )}
           />
         </View>
 
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   )
 }
 
