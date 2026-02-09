@@ -7,6 +7,14 @@ import { useRouter } from "expo-router";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { history, History } from '@/contants/history';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const HistoryScreen = () => {
   const router = useRouter()
@@ -135,11 +143,18 @@ const HistoryScreen = () => {
                   </Button>
                 </View>
                 <View className="flex-col justify-center">
-                  <Button
-                    size="icon"
-                    variant="ghost">
-                    <Feather name="more-vertical" size={20} />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Feather name="more-vertical" size={20} />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent style={{ backgroundColor: colors.background }}>
+                      <DropdownMenuLabel>
+                        <Button variant="outline" size="icon">
+                          <Feather name="trash-2" size={20} color={colors.primary} />
+                        </Button>
+                      </DropdownMenuLabel>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </View>
               </View>
             </View>
