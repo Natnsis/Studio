@@ -9,9 +9,13 @@ import { useForm, Controller } from "react-hook-form"
 import { AuthSchema, AuthTypes } from "@/schemas/auth.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner-native"
+import { useState } from "react"
+import { loginWithPassword } from "@/api/auth.controller"
 
 const Login = () => {
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const { control, handleSubmit, formState: { errors } } = useForm<AuthTypes>({
     resolver: zodResolver(AuthSchema),
     defaultValues: {
@@ -20,9 +24,18 @@ const Login = () => {
     }
   });
 
-  const onSubmit = (data: AuthTypes) => {
-    if (!data) { toast("no data") }
-    toast(data.email);
+  const onSubmit = async (data: AuthTypes) => {
+    try {
+      setIsLoading(true);
+      await loginWithPassword(data)
+      toast.success('welcome back✨')
+      router.push("/tabs/home")
+    } catch (error) {
+      toast.error("invalid credentials")
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -116,13 +129,22 @@ const Login = () => {
           style={{ backgroundColor: colors.primary }}
           className="rounded-full mt-5"
           onPress={handleSubmit(onSubmit)}
+          disabled={isLoading}
         >
-          <Text
-            style={{ fontFamily: "readexRegular" }}
-            className="text-white"
-          >
-            Sign In
-          </Text>
+          {isLoading ?
+            <Text
+              style={{ fontFamily: "readexRegular" }}
+              className="text-white"
+            >
+              Signing in...
+            </Text>
+            : <Text
+              style={{ fontFamily: "readexRegular" }}
+              className="text-white"
+            >
+              Sign In
+            </Text>
+          }
         </Button>
 
         <View className="flex-row items-center my-5">
