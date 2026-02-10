@@ -5,9 +5,25 @@ import { Link } from "expo-router"
 import { View, Text, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
+import { Controller, useForm } from 'react-hook-form'
+import { AuthSchema, AuthTypes } from "@/schemas/auth.schema"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 const Register = () => {
   const router = useRouter();
+  const { formState: { errors }, handleSubmit, control
+  } = useForm<AuthTypes>({
+    resolver: zodResolver(AuthSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
+
+  const onSubmit = (data: AuthTypes) => {
+    console.log(data)
+  }
+
   return (
     <SafeAreaView style={{ backgroundColor: colors.background, height: '100%' }}>
       <View className="p-5">
@@ -34,26 +50,70 @@ const Register = () => {
 
         <View className="mt-5">
           <Text style={{ fontFamily: "readexRegular", fontSize: 13 }}>Email</Text>
-          <Input
-            placeholder="example@gmail.com"
-            style={{ fontFamily: "readexExtraLight" }}
-            keyboardType="email-address"
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Input
+                  placeholder="example@gmail.com"
+                  style={{ fontFamily: "readexExtraLight" }}
+                  keyboardType="email-address"
+                  value={value}
+                  onChangeText={onChange}
+                />
+                {errors.email && (
+                  <Text
+                    style={{
+                      fontFamily: "readexExtraLight",
+                      fontSize: 12,
+                      color: colors.secondary
+                    }}
+                    className="capitalize"
+                  >
+                    {errors.email.message}
+                  </Text>
+                )}
+              </>
+            )}
           />
         </View>
 
         <View className="mt-2">
           <Text style={{ fontFamily: "readexRegular", fontSize: 13 }}>Password</Text>
-          <Input
-            placeholder="*******"
-            style={{ fontFamily: "readexExtraLight" }}
-            keyboardType="visible-password"
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Input
+                  placeholder="*******"
+                  style={{ fontFamily: "readexExtraLight" }}
+                  keyboardType="visible-password"
+                  value={value}
+                  onChangeText={onChange}
+                />
+                {errors.password && (
+                  <Text
+                    style={{
+                      fontFamily: "readexExtraLight",
+                      fontSize: 12,
+                      color: colors.secondary
+                    }}
+                    className="capitalize"
+                  >
+                    {errors.password.message}
+                  </Text>
+                )}
+              </>
+            )}
           />
         </View>
 
         <Button
           style={{ backgroundColor: colors.primary }}
           className="rounded-full mt-5"
-          onPress={() => router.replace("/tabs/home")}
+          onPress={handleSubmit(onSubmit)}
         >
           <Text
             style={{ fontFamily: "readexRegular" }}
