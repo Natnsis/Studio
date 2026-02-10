@@ -5,6 +5,8 @@ import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
 import { Stack } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import { Toaster } from 'sonner-native';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export {
   ErrorBoundary,
@@ -25,9 +27,12 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <PortalHost />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={NAV_THEME[colorScheme ?? "light"]}>
+        <Stack screenOptions={{ headerShown: false }} />
+        <PortalHost />
+        <Toaster />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
