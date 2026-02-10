@@ -8,6 +8,7 @@ import { useRouter } from "expo-router"
 import { Controller, useForm } from 'react-hook-form'
 import { AuthSchema, AuthTypes } from "@/schemas/auth.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner-native"
 
 const Register = () => {
   const router = useRouter();
@@ -21,7 +22,8 @@ const Register = () => {
   });
 
   const onSubmit = (data: AuthTypes) => {
-    console.log(data)
+    if (!data) { toast("no data") }
+    toast(data.email);
   }
 
   return (
