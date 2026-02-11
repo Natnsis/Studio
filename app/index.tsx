@@ -4,10 +4,30 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Button } from "@/components/ui/button"
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router"
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 const index = () => {
   const { height, width } = Dimensions.get("window")
   const router = useRouter()
+
+  //TODO: redirect on app loaading state
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          router.replace("/tabs/home");
+        } else {
+          router.replace("/");
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <SafeAreaView style={{ backgroundColor: colors.background, height: "100%" }}>
       <View className="w-full h-full">
