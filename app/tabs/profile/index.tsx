@@ -3,9 +3,32 @@ import { View, Text, Image, Dimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/hooks/useUser';
+import { toast } from 'sonner-native';
+import { logout } from '@/api/auth.controller';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
 const Profile = () => {
   const { width } = Dimensions.get("screen")
+  const { data: user, isLoading } = useUser();
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const onLogout = async () => {
+    try {
+      setLoading(true);
+      await logout();
+      setLoading(false);
+      toast.success('logged out successfully')
+      router.replace('/login')
+    } catch (err: any) {
+      console.log(err)
+      toast.error("error while logging out")
+      setLoading(false);
+    }
+  }
+
   return (
     <SafeAreaView
       style={{
@@ -33,7 +56,7 @@ const Profile = () => {
             fontFamily: "readexExtraLight"
           }}
         >
-          nsisay49@gmail.com
+          {isLoading ? "guest@gmail.com" : user?.email}
         </Text>
         <Text
           className='text-center'
@@ -41,7 +64,7 @@ const Profile = () => {
             fontFamily: "readexBold"
           }}
         >
-          Natnael Sisay
+          {isLoading ? "Guest" : user?.id}
         </Text>
       </View>
 
@@ -85,6 +108,8 @@ const Profile = () => {
             backgroundColor: colors.secondary,
             height: '30%'
           }}
+          onPress={onLogout}
+          disabled={loading}
         >
           <Feather name='log-out' color="#FFF" size={40} />
           <Text
@@ -93,7 +118,9 @@ const Profile = () => {
               fontSize: 20,
               color: '#FFF'
             }}
-          >Logout</Text>
+          >
+            {loading ? "Logging out..." : "Logout"}
+          </Text>
         </Button>
       </View>
 
