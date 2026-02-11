@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Feather } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { history, History } from '@/contants/history';
+import { useUser } from '@/hooks/useUser';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")

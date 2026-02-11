@@ -7,6 +7,7 @@ import { Stack } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { Toaster } from 'sonner-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 export {
   ErrorBoundary,
@@ -26,10 +27,14 @@ export default function RootLayout() {
 
   if (!loaded) return null;
 
+  const queryClient = new QueryClient()
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={NAV_THEME[colorScheme ?? "light"]}>
-        <Stack screenOptions={{ headerShown: false }} />
+        <QueryClientProvider client={queryClient}>
+          <Stack screenOptions={{ headerShown: false }} />
+        </QueryClientProvider>
         <PortalHost />
         <Toaster />
       </ThemeProvider>
