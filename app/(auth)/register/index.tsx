@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner-native"
 import { useState } from "react"
 import { registerWithPassword } from "@/api/auth.controller"
+import { Feather } from '@expo/vector-icons';
 
 const Register = () => {
   const router = useRouter();
@@ -42,6 +43,10 @@ const Register = () => {
   return (
     <SafeAreaView style={{ backgroundColor: colors.background, height: '100%' }}>
       <View className="p-5">
+        <Link href="/">
+          <Feather name="arrow-left" size={20} />
+        </Link>
+
         <View className="flex items-center ">
           <Image source={require("@/assets/images/logo.png")} style={{ width: 100, height: 100 }} />
         </View>

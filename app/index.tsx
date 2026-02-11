@@ -17,8 +17,6 @@ const index = () => {
       (event, session) => {
         if (session) {
           router.replace("/tabs/home");
-        } else {
-          router.replace("/");
         }
       }
     );
