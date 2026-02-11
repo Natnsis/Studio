@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Feather } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { history, History } from '@/contants/history';
-import { useUser } from '@/hooks/useUser';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
@@ -25,16 +24,9 @@ const Home = () => {
               Good Morning!
             </Text>
             <Text style={{ fontFamily: "readexRegular", fontSize: 12 }}>
-              Let's play some music!
+              Let's play some audio!
             </Text>
           </View>
-
-          <Avatar alt="Zach Nugent's Avatar">
-            <AvatarImage source={{ uri: 'https://github.com/mrzachnugent.png' }} />
-            <AvatarFallback>
-              <Text>ZN</Text>
-            </AvatarFallback>
-          </Avatar>
         </View>
 
         {/*search*/}
