@@ -1,17 +1,30 @@
 import { colors } from '@/assets/colors'
-import { View, Text, Dimensions, FlatList, TouchableOpacity, Image } from 'react-native'
+import { View, Text, Dimensions, FlatList, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from "@/components/ui/button";
 import { Feather } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import { history, History } from '@/contants/history';
+import { Controller, useForm } from 'react-hook-form';
+import { SearchSchema, SearchType } from '@/schemas/search.schema';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
   const displayedItem = history.slice(0, 6)
   const router = useRouter()
+  const { control, handleSubmit, formState: { errors } } = useForm<SearchType>({
+    resolver: zodResolver(SearchSchema),
+    defaultValues: {
+      url: ""
+    }
+  })
+
+  const onSubmit = (data: SearchType) => {
+    console.log(data)
+  }
+
   return (
     <SafeAreaView>
       <View
@@ -45,16 +58,39 @@ const Home = () => {
           }}
           className='border-2 rounded-xl mt-5 p-5'
         >
-          <Input
-            placeholder='https://youtube/url-name/id-123?..'
-            style={{ fontFamily: "readexLight", fontSize: 10 }}
+          <Controller
+            control={control}
+            name="url"
+            render={({ field: { onChange, value } }) => (
+              <>
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder='https://youtube/url-name/id-123?..'
+                  style={{ fontFamily: "readexLight", fontSize: 10 }}
+                />
+                {errors.url && (
+                  <Text style={{
+                    fontFamily: "readexRegular",
+                    fontSize: 10,
+                  }}
+                    className='text-center'
+                  >
+                    {errors.url.message}
+                  </Text>
+                )}
+              </>
+            )}
           />
+
           <View className='mt-5 flex-row justify-center'>
             <Button
               style={{
                 backgroundColor: colors.primary,
                 width: width * 0.4
-              }}>
+              }}
+              onPress={handleSubmit(onSubmit)}
+            >
               <Feather
                 name='search'
                 size={18}
