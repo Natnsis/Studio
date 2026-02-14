@@ -32,8 +32,10 @@ const Home = () => {
     try {
       setLoading(true);
       const userId = user?.id as string
-      const res = await searchLink({ ...data, userId });
-      console.log(res);
+      if (!loading) {
+        const res = await searchLink({ ...data, userId });
+        console.log(res);
+      }
       setLoading(false);
     } catch (error) {
       setLoading(false);
