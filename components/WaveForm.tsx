@@ -20,11 +20,10 @@ export default function Waveform({
 }: Props) {
   const { position, duration } = useProgress();
 
-  // Fake waveform (stable)
   const data = useMemo(
     () =>
       Array.from({ length: bars }, (_, i) =>
-        Math.abs(Math.sin(i * 1.7)) * height + 10
+        (Math.abs(Math.sin(i * 1.7)) + Math.random() * 0.5) * height * 0.7 + height * 0.1
       ),
     [bars, height]
   );

@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { Button } from "@/components/ui/button"
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
+import Waveform from "@/components/WaveForm";
 
 const Player = () => {
   const { height } = Dimensions.get('screen')
@@ -76,8 +77,8 @@ const Player = () => {
       </View>
 
       {/*playing line*/}
-      <View className="h-[10%] border mt-5">
-
+      <View style={{ height: 80, marginTop: 20, borderWidth: 1 }}>
+        <Waveform width={320} height={60} />
       </View>
 
       {/*player control*/}
