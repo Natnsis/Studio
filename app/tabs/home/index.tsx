@@ -27,11 +27,13 @@ const Home = () => {
     }
   })
 
+  //FIX: bug on uploading probably rls
   const onSubmit = async (data: SearchType) => {
     try {
       setLoading(true);
       const userId = user?.id as string
       const res = await searchLink({ ...data, userId });
+      console.log(res);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -106,6 +108,7 @@ const Home = () => {
                 width: width * 0.4
               }}
               onPress={handleSubmit(onSubmit)}
+              disabled={isLoading}
             >
               <Feather
                 name='search'
@@ -116,7 +119,7 @@ const Home = () => {
                 style={{ fontFamily: "readexRegular", fontSize: 15 }}
                 className='text-white'
               >
-                Search
+                {isLoading ? "loading..." : "Search"}
               </Text>
             </Button>
           </View>
