@@ -27,15 +27,12 @@ const Home = () => {
     }
   })
 
-  //FIX: bug on uploading probably rls
   const onSubmit = async (data: SearchType) => {
     try {
       setLoading(true);
       const userId = user?.id as string
-      console.log(data)
-      console.log({ ...data, userId })
       const res = await searchLink({ ...data, userId });
-      console.log(res);
+      console.log(res)
       setLoading(false);
     } catch (error) {
       setLoading(false);

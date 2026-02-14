@@ -25,7 +25,6 @@ export const searchLink = async (data: LinkData) => {
       process.env.EXPO_PUBLIC_AUDIO_API!,
       { url }
     );
-    console.log(response);
 
     return response.data;
 
