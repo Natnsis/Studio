@@ -9,9 +9,15 @@ import { history, History } from '@/contants/history';
 import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { searchLink } from '@/api/link.controller';
+import { useUser } from '@/hooks/useUser';
 
 const Home = () => {
   const { height, width } = Dimensions.get("window")
+  const [loading, setLoading] = useState<boolean>(false)
+  const { data: user, isLoading } = useUser();
+
   const displayedItem = history.slice(0, 6)
   const router = useRouter()
   const { control, handleSubmit, formState: { errors } } = useForm<SearchType>({
@@ -21,8 +27,18 @@ const Home = () => {
     }
   })
 
-  const onSubmit = (data: SearchType) => {
-    console.log(data)
+  const onSubmit = async (data: SearchType) => {
+    try {
+      setLoading(true);
+      const userId = user?.id as string
+      const res = await searchLink({ ...data, userId });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      throw error
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
