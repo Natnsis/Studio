@@ -9,16 +9,27 @@ type LinkData = {
 export const searchLink = async (data: LinkData) => {
   try {
     const { url, userId } = data;
-    const { error: addingError } = await supabase.from('links')
+
+    const { error: addingError } = await supabase
+      .from("links")
       .insert({
         url,
         user_id: userId
       });
-    if (!addingError) {
-      const response = await axios.post(process.env.EXPO_PUBLIC_AUDIO_API!);
-      return response
+
+    if (addingError) {
+      throw addingError;
     }
+
+    const response = await axios.post(
+      process.env.EXPO_PUBLIC_AUDIO_API!,
+      { url }
+    );
+    console.log(response);
+
+    return response.data;
+
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
