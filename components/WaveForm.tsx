@@ -8,7 +8,7 @@ type Props = {
   height?: number;
   activeColor?: string;
   inactiveColor?: string;
-  progress?: number; // 0..1
+  progress?: number;
 };
 
 export default function Waveform({

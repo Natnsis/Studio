@@ -3,7 +3,7 @@ import { View, Text, Image, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Feather } from "@expo/vector-icons";
-import { useRouter, useSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import Waveform from "@/components/WaveForm";
 import { Audio } from "expo-av";
 import { useEffect, useRef, useState } from "react";
@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 const Player = () => {
   const { height } = Dimensions.get("screen");
   const router = useRouter();
-  const params = useSearchParams();
+  const params = useLocalSearchParams();
 
   const audioUrl = (params?.audioUrl as string) || undefined;
   const titleParam = (params?.title as string) || "Unknown";
