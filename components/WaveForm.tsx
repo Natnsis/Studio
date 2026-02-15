@@ -1,7 +1,6 @@
-import { View } from "react-native";
-import Svg, { Rect } from "react-native-svg";
-import { useMemo } from "react";
-import { useProgress } from "react-native-track-player";
+import { View } from 'react-native';
+import Svg, { Rect } from 'react-native-svg';
+import { useEffect, useState } from 'react';
 
 type Props = {
   bars?: number;
@@ -9,36 +8,36 @@ type Props = {
   height?: number;
   activeColor?: string;
   inactiveColor?: string;
+  progress?: number;
 };
 
 export default function Waveform({
   bars = 60,
   width = 320,
   height = 60,
-  activeColor = "#ff6a00",
-  inactiveColor = "#444",
+  activeColor = '#ff6a00',
+  inactiveColor = '#444',
+  progress = 0,
 }: Props) {
-  const { position, duration } = useProgress();
-
-  // Fake waveform (stable)
-  const data = useMemo(
-    () =>
-      Array.from({ length: bars }, (_, i) =>
-        Math.abs(Math.sin(i * 1.7)) * height + 10
-      ),
-    [bars, height]
+  const [waveData, setWaveData] = useState<number[]>(
+    Array.from({ length: bars }, () => Math.random() * height * 0.5 + height * 0.1)
   );
 
-  const progress =
-    duration > 0 ? position / duration : 0;
-
+  // Animate waveform
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWaveData(Array.from({ length: bars }, () => Math.random() * height * 0.5 + height * 0.1));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [bars, height]);
   const barWidth = width / bars;
-  const activeBars = Math.floor(progress * bars);
+  const boundedProgress = Math.max(0, Math.min(1, progress ?? 0));
+  const activeBars = Math.floor(boundedProgress * bars);
 
   return (
     <View>
       <Svg width={width} height={height}>
-        {data.map((h, i) => (
+        {waveData.map((h, i) => (
           <Rect
             key={i}
             x={i * barWidth}
