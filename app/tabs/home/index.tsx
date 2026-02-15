@@ -65,6 +65,8 @@ const Home = () => {
     enabled: !!linksResponse?.data?.length,
   });
 
+  console.log(linksResponse)
+
   console.log(ytVideos)
 
   return (
