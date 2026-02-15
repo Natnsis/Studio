@@ -10,15 +10,17 @@ import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { searchLink } from '@/api/link.controller';
+import { getLinks, searchLink } from '@/api/link.controller';
 import { useUser } from '@/hooks/useUser';
+import { useQuery } from '@tanstack/react-query';
+import { fetchYTData } from '@/api/youtube.data';
 
 const Home = () => {
   const { height, width } = Dimensions.get('window');
   const [loading, setLoading] = useState<boolean>(false);
   const { data: user, isLoading } = useUser();
 
-  const displayedItem = history.slice(0, 6);
+
   const router = useRouter();
   const {
     control,
@@ -50,6 +52,21 @@ const Home = () => {
       setLoading(false);
     }
   };
+
+  const { data: linksResponse } = useQuery({
+    queryKey: ['links', user?.id],
+    queryFn: () => getLinks(user!.id),
+    enabled: !!user?.id,
+  });
+
+  const { data: ytVideos, isLoading: fetchingYT } = useQuery({
+    queryKey: ['ytVideos', linksResponse?.data],
+    queryFn: () => fetchYTData(linksResponse!.data),
+    enabled: !!linksResponse?.data?.length,
+  });
+
+  const displayedItem = ytVideos!.slice(0, 6);
+  console.log(ytVideos)
 
   return (
     <SafeAreaView>
@@ -143,56 +160,62 @@ const Home = () => {
 
         {/*flatlist*/}
         <View className="flex-1">
-          <FlatList<History>
-            data={displayedItem}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <View className="mb-3 flex-row justify-between">
-                <View className="w-[60%] flex-row">
-                  <Image
-                    source={require('assets/images/history/history1.jpg')}
-                    style={{ width: 70, height: 70 }}
-                    className="rounded-sm border"
-                  />
-                  <View className="ml-2 flex-col justify-center">
-                    <Text
-                      style={{
-                        fontFamily: 'readexBold',
-                        fontSize: 14,
-                      }}
-                      className="capitalize">
-                      {item.title}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: 'readexExtraLight',
-                        fontSize: 12,
-                      }}
-                      className="capitalize">
-                      {item.name}
-                    </Text>
+          {ytVideos ?
+            <FlatList<History>
+              data={displayedItem}
+              keyExtractor={(item) => item?.videoId.toString()}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <View className="mb-3 flex-row justify-between">
+                  <View className="w-[60%] flex-row">
+                    <Image
+                      source={{ uri: item?.thumbnail }}
+                      style={{ width: 70, height: 70 }}
+                      className="rounded-sm border"
+                    />
+                    <View className="ml-2 flex-col justify-center">
+                      <Text
+                        style={{
+                          fontFamily: 'readexBold',
+                          fontSize: 14,
+                        }}
+                        className="capitalize">
+                        {item.title.length > 15
+                          ? item.title.slice(0, 15) + "..."
+                          : item.title}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: 'readexExtraLight',
+                          fontSize: 12,
+                        }}
+                        className="capitalize">
+                        {item.channel}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="flex-col justify-center">
+                    <Button
+                      style={{ backgroundColor: colors.primary }}
+                      className="items-center justify-center rounded-full"
+                      onPress={() => router.replace('/inner/player')}>
+                      <Image
+                        source={require('@/assets/images/play.png')}
+                        style={{
+                          width: 15,
+                          height: 15,
+                          tintColor: 'white',
+                        }}
+                        resizeMode="contain"
+                      />
+                    </Button>
                   </View>
                 </View>
-                <View className="flex-col justify-center">
-                  <Button
-                    style={{ backgroundColor: colors.primary }}
-                    className="items-center justify-center rounded-full"
-                    onPress={() => router.replace('/inner/player')}>
-                    <Image
-                      source={require('@/assets/images/play.png')}
-                      style={{
-                        width: 15,
-                        height: 15,
-                        tintColor: 'white',
-                      }}
-                      resizeMode="contain"
-                    />
-                  </Button>
-                </View>
-              </View>
-            )}
-          />
+              )}
+            /> : <Text>
+              no history yet
+            </Text>
+          }
         </View>
       </View>
     </SafeAreaView>

@@ -13,9 +13,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useQuery } from "@tanstack/react-query";
+import { getLinks } from "@/api/link.controller";
+import { fetchYTData } from "@/api/youtube.data";
+import { useUser } from "@/hooks/useUser";
 
 const HistoryScreen = () => {
   const router = useRouter()
+  const { data: user, isLoading } = useUser();
+
+  const { data: linksResponse } = useQuery({
+    queryKey: ['links', user?.id],
+    queryFn: () => getLinks(user!.id),
+    enabled: !!user?.id,
+  });
+
+  const { data: ytVideos, isLoading: fetchingYT } = useQuery({
+    queryKey: ['ytVideos', linksResponse?.data],
+    queryFn: () => fetchYTData(linksResponse!.data),
+    enabled: !!linksResponse?.data?.length,
+  });
+
   return (
     <SafeAreaView
       style={{ height: '100%', backgroundColor: colors.background }}
@@ -93,16 +111,16 @@ const HistoryScreen = () => {
       <Separator />
 
       {/*flatlist*/}
-      <View className='flex-1'>
+      <View className='flex-1 mt-2'>
         <FlatList<History>
-          data={history}
-          keyExtractor={(item) => item.id.toString()}
+          data={ytVideos}
+          keyExtractor={(item) => item?.videoId.toString()}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View className='flex-row justify-between mb-3'>
               <View className='flex-row w-[60%]'>
                 <Image
-                  source={require("assets/images/history/history1.jpg")}
+                  source={{ uri: item?.thumbnail }}
                   style={{ width: 70, height: 70 }}
                   className='rounded-sm border'
                 />
@@ -112,14 +130,18 @@ const HistoryScreen = () => {
                       fontFamily: "readexBold", fontSize: 14
                     }}
                     className='capitalize'>
-                    {item.title}
+                    {item.title.length > 15
+                      ? item.title.slice(0, 15) + "..."
+                      : item.title}
                   </Text>
                   <Text
                     style={{
                       fontFamily: "readexExtraLight", fontSize: 12
                     }}
                     className='capitalize'
-                  >{item.name}</Text>
+                  >
+                    {item.channel}
+                  </Text>
                 </View>
               </View>
 
