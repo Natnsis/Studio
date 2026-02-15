@@ -10,8 +10,9 @@ import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { searchLink } from '@/api/link.controller';
+import { getLinks, searchLink } from '@/api/link.controller';
 import { useUser } from '@/hooks/useUser';
+import { useQuery } from '@tanstack/react-query';
 
 const Home = () => {
   const { height, width } = Dimensions.get('window');
@@ -51,6 +52,13 @@ const Home = () => {
     }
   };
 
+  const { data: links, error: linksError, isLoading: fetchingLinks } = useQuery({
+    queryKey: ['links', user?.id],
+    queryFn: () => getLinks(user!.id),
+    enabled: !!user?.id, // force boolean
+  });
+
+  console.log(links);
   return (
     <SafeAreaView>
       <View className="p-5" style={{ backgroundColor: colors.background, height: height }}>
