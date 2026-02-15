@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { getLinks, searchLink } from '@/api/link.controller';
 import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
+import { fetchYTData } from '@/api/youtube.data';
 
 const Home = () => {
   const { height, width } = Dimensions.get('window');
@@ -52,13 +53,20 @@ const Home = () => {
     }
   };
 
-  const { data: links, error: linksError, isLoading: fetchingLinks } = useQuery({
+  const { data: linksResponse } = useQuery({
     queryKey: ['links', user?.id],
     queryFn: () => getLinks(user!.id),
-    enabled: !!user?.id, // force boolean
+    enabled: !!user?.id,
   });
 
-  console.log(links);
+  const { data: ytVideos, isLoading: fetchingYT } = useQuery({
+    queryKey: ['ytVideos', linksResponse?.data],
+    queryFn: () => fetchYTData(linksResponse!.data),
+    enabled: !!linksResponse?.data?.length,
+  });
+
+  console.log(ytVideos)
+
   return (
     <SafeAreaView>
       <View className="p-5" style={{ backgroundColor: colors.background, height: height }}>
