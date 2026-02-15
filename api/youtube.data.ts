@@ -39,7 +39,7 @@ export const fetchYTData = async (links: Link[]): Promise<YTVideo[]> => {
         params: {
           part: "snippet",
           id: videoIds.join(","),
-          key: process.env.YT_KEY,
+          key: process.env.EXPO_PUBLIC_YT_KEY,
         },
       }
     );

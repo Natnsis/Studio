@@ -20,7 +20,7 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const { data: user, isLoading } = useUser();
 
-  const displayedItem = history.slice(0, 6);
+
   const router = useRouter();
   const {
     control,
@@ -65,8 +65,7 @@ const Home = () => {
     enabled: !!linksResponse?.data?.length,
   });
 
-  console.log(linksResponse)
-
+  const displayedItem = ytVideos!.slice(0, 6);
   console.log(ytVideos)
 
   return (
@@ -161,56 +160,62 @@ const Home = () => {
 
         {/*flatlist*/}
         <View className="flex-1">
-          <FlatList<History>
-            data={displayedItem}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <View className="mb-3 flex-row justify-between">
-                <View className="w-[60%] flex-row">
-                  <Image
-                    source={require('assets/images/history/history1.jpg')}
-                    style={{ width: 70, height: 70 }}
-                    className="rounded-sm border"
-                  />
-                  <View className="ml-2 flex-col justify-center">
-                    <Text
-                      style={{
-                        fontFamily: 'readexBold',
-                        fontSize: 14,
-                      }}
-                      className="capitalize">
-                      {item.title}
-                    </Text>
-                    <Text
-                      style={{
-                        fontFamily: 'readexExtraLight',
-                        fontSize: 12,
-                      }}
-                      className="capitalize">
-                      {item.name}
-                    </Text>
+          {ytVideos ?
+            <FlatList<History>
+              data={displayedItem}
+              keyExtractor={(item) => item?.videoId.toString()}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <View className="mb-3 flex-row justify-between">
+                  <View className="w-[60%] flex-row">
+                    <Image
+                      source={{ uri: item?.thumbnail }}
+                      style={{ width: 70, height: 70 }}
+                      className="rounded-sm border"
+                    />
+                    <View className="ml-2 flex-col justify-center">
+                      <Text
+                        style={{
+                          fontFamily: 'readexBold',
+                          fontSize: 14,
+                        }}
+                        className="capitalize">
+                        {item.title.length > 15
+                          ? item.title.slice(0, 15) + "..."
+                          : item.title}
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: 'readexExtraLight',
+                          fontSize: 12,
+                        }}
+                        className="capitalize">
+                        {item.channel}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="flex-col justify-center">
+                    <Button
+                      style={{ backgroundColor: colors.primary }}
+                      className="items-center justify-center rounded-full"
+                      onPress={() => router.replace('/inner/player')}>
+                      <Image
+                        source={require('@/assets/images/play.png')}
+                        style={{
+                          width: 15,
+                          height: 15,
+                          tintColor: 'white',
+                        }}
+                        resizeMode="contain"
+                      />
+                    </Button>
                   </View>
                 </View>
-                <View className="flex-col justify-center">
-                  <Button
-                    style={{ backgroundColor: colors.primary }}
-                    className="items-center justify-center rounded-full"
-                    onPress={() => router.replace('/inner/player')}>
-                    <Image
-                      source={require('@/assets/images/play.png')}
-                      style={{
-                        width: 15,
-                        height: 15,
-                        tintColor: 'white',
-                      }}
-                      resizeMode="contain"
-                    />
-                  </Button>
-                </View>
-              </View>
-            )}
-          />
+              )}
+            /> : <Text>
+              no history yet
+            </Text>
+          }
         </View>
       </View>
     </SafeAreaView>
