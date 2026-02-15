@@ -128,14 +128,9 @@ const Player = () => {
           className="text-center"
           style={{ fontFamily: "readexBold", fontSize: 20 }}
         >
-          {titleParam}
-        </Text>
-
-        <Text
-          className="text-center"
-          style={{ fontFamily: "readexLight", fontSize: 13 }}
-        >
-          Unknown Artist
+          {titleParam.length > 10
+            ? titleParam.slice(0, 18) + "..."
+            : titleParam}
         </Text>
       </View>
 
@@ -149,19 +144,15 @@ const Player = () => {
       </View>
 
       {/* Controls */}
-      <View className="flex-row justify-between mt-8 h-[15%] items-center">
+      <View className="flex-row justify-between mt-8 items-center">
         <Button variant="ghost">
           <Feather name="repeat" size={25} />
         </Button>
 
         <View className="flex-row items-center">
-          <Button variant="ghost">
-            <Feather name="skip-back" size={30} />
-          </Button>
-
           <Button
             variant="ghost"
-            className="rounded-lg border"
+            className="rounded-lg border h-30"
             onPress={togglePlay}
           >
             <Feather
@@ -169,10 +160,6 @@ const Player = () => {
               size={45}
               color={colors.primary}
             />
-          </Button>
-
-          <Button variant="ghost">
-            <Feather name="skip-forward" size={30} />
           </Button>
         </View>
 
