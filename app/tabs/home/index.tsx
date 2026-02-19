@@ -8,7 +8,7 @@ import { Link, useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getLinks, searchLink } from '@/api/link.controller';
 import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
@@ -101,6 +101,25 @@ const Home = () => {
       setHistorying(false);
     }
   };
+  const [greeting, setGreeting] = useState("");
+  const updateGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 5 && currentHour < 12) {
+      setGreeting("Good Morning!");
+    } else if (currentHour >= 12 && currentHour < 17) {
+      setGreeting("Good Afternoon!");
+    } else if (currentHour >= 17 && currentHour < 21) {
+      setGreeting("Good Evening!");
+    } else {
+      setGreeting("Good Night!");
+    }
+  };
+
+  useEffect(() => {
+    updateGreeting();
+    const interval = setInterval(updateGreeting, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <SafeAreaView>
@@ -108,7 +127,9 @@ const Home = () => {
         {/*header*/}
         <View className="flex-row justify-between">
           <View>
-            <Text style={{ fontFamily: 'readexBold', fontSize: 25 }}>Good Morning!</Text>
+            <Text style={{ fontFamily: 'readexBold', fontSize: 25 }}>
+              {greeting}
+            </Text>
             <Text style={{ fontFamily: 'readexRegular', fontSize: 12 }}>
               Let's play some audio!
             </Text>
