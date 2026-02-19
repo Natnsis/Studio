@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Feather } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
-import { history, History } from '@/contants/history';
 import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -65,8 +64,7 @@ const Home = () => {
     enabled: !!linksResponse?.data?.length,
   });
 
-  const displayedItem = ytVideos!.slice(0, 6);
-  console.log(ytVideos)
+  const displayedItem = ytVideos?.slice(0, 6) || [];
 
   return (
     <SafeAreaView>
@@ -161,7 +159,7 @@ const Home = () => {
         {/*flatlist*/}
         <View className="flex-1">
           {ytVideos ?
-            <FlatList<History>
+            <FlatList
               data={displayedItem}
               keyExtractor={(item) => item?.videoId.toString()}
               showsVerticalScrollIndicator={false}
@@ -212,7 +210,14 @@ const Home = () => {
                   </View>
                 </View>
               )}
-            /> : <Text>
+            /> :
+            <Text
+              style={{
+                fontFamily: 'light',
+                fontSize: 12
+              }}
+              className='text-center'
+            >
               no history yet
             </Text>
           }
