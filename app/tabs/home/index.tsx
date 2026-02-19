@@ -37,7 +37,6 @@ const Home = () => {
       setLoading(true);
       const userId = user?.id as string;
       const res = await searchLink({ ...data, userId });
-      console.log(res);
       if (res && res.audioUrl) {
         const q = `?audioUrl=${encodeURIComponent(res.audioUrl)}&title=${encodeURIComponent(res.title ?? '')}&thumbnail=${encodeURIComponent(res.thumbnail ?? '')}`;
         router.replace({
@@ -58,6 +57,7 @@ const Home = () => {
       setLoading(false);
     }
   };
+
 
   const { data: linksResponse } = useQuery({
     queryKey: ['links', user?.id],
@@ -133,10 +133,10 @@ const Home = () => {
                 width: width * 0.4,
               }}
               onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}>
+              disabled={loading}>
               <Feather name="search" size={18} color="#FFF" />
               <Text style={{ fontFamily: 'readexRegular', fontSize: 15 }} className="text-white">
-                {isLoading ? 'loading...' : 'Search'}
+                {loading ? 'searching...' : 'Search'}
               </Text>
             </Button>
           </View>
@@ -203,7 +203,8 @@ const Home = () => {
                     <Button
                       style={{ backgroundColor: colors.primary }}
                       className="items-center justify-center rounded-full"
-                      onPress={() => router.replace('/inner/player')}>
+                      onPress={() => router.replace('/inner/player')}
+                    >
                       <Image
                         source={require('@/assets/images/play.png')}
                         style={{
