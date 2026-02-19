@@ -17,11 +17,10 @@ const Favorites = () => {
   });
 
 
-  const truncateWords = (text: string, numWords = 3) => {
+  const truncateByChars = (text?: string, maxChars = 50) => {
     if (!text) return "";
-    const words = text.split(" ");
-    if (words.length <= numWords) return text;
-    return words.slice(0, numWords).join(" ") + "...";
+    if (text.length <= maxChars) return text;
+    return text.slice(0, maxChars) + "...";
   };
 
   return (
@@ -43,7 +42,6 @@ const Favorites = () => {
         >Your favorites</Text>
       </View>
 
-      {/*favorites flatlist*/}
       <View className='w-[100%]'>
         <FlatList
           data={favorites}
@@ -67,7 +65,7 @@ const Favorites = () => {
                 }}
                 className="mt-2 capitalize w-full"
               >
-                {item.title}
+                {truncateByChars(item.title, 25)}
               </Text>
               <View
                 className='flex-row justify-between items-center'>
@@ -77,7 +75,7 @@ const Favorites = () => {
                     fontSize: 15
                   }}
                   className="mt-2 w-[60%]">
-                  {truncateWords(item.name)}
+                  {truncateByChars(item.url, 50)}
                 </Text>
                 <Button
                   size="icon"
