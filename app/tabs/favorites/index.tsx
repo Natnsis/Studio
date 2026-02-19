@@ -2,13 +2,25 @@ import { colors } from '@/assets/colors'
 import { View, Text, FlatList, Image, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons';
-import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
-import { fetchFavoritesById } from '@/api/favorite.controller';
+import { deleteFavorites, fetchFavoritesById } from '@/api/favorite.controller';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { searchLink } from '@/api/link.controller';
+import { toast } from 'sonner-native';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useQueryClient } from '@tanstack/react-query';
+
 
 const Favorites = () => {
   const { data: user, isLoading } = useUser();
@@ -21,6 +33,7 @@ const Favorites = () => {
     enabled: !!user?.id
   });
 
+  const queryClient = useQueryClient();
 
   const truncateByChars = (text?: string, maxChars = 50) => {
     if (!text) return "";
@@ -32,6 +45,7 @@ const Favorites = () => {
 
   const handlePlayFavorite = async (item: typeof favorites[0]) => {
     if (!user?.id) return;
+    toast.success("streaming audio...");
 
     try {
       setLoadingId(item.id);
@@ -58,6 +72,21 @@ const Favorites = () => {
       setLoadingId(null);
     }
   };
+
+  const deleteAFavorite = async (id: string) => {
+    try {
+      await deleteFavorites(id);
+      queryClient.invalidateQueries({
+        queryKey: ['favorites', user?.id],
+      });
+    } catch (error) {
+      toast.error('unable to delete!')
+      console.log(error)
+    }
+  }
+
+
+  console.log(favorites?.[0]?.id)
 
   return (
     <SafeAreaView
@@ -117,12 +146,54 @@ const Favorites = () => {
                     className="mt-2 w-[60%]">
                     {truncateByChars(item.url, 50)}
                   </Text>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                  >
-                    <Feather name='trash-2' size={20} />
-                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <View className="p-2 rounded-gull">
+                        <Feather name='trash-2' size={20} />
+                      </View>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent style={{
+                      backgroundColor: colors.background
+                    }}>
+                      <AlertDialogHeader>
+                        <AlertDialogDescription style={{
+                          fontFamily: 'readexLight'
+                        }}>
+                          are you sure you want to remove?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-row justify-center">
+                        <AlertDialogCancel style={{
+                          backgroundColor: colors.secondary
+                        }}
+                        >
+                          <Text
+                            style={{
+                              color: "#FFF",
+                              fontFamily: 'readexRegular'
+                            }}
+                          >
+                            Cancel
+                          </Text>
+                        </AlertDialogCancel>
+                        <AlertDialogAction style={{
+                          backgroundColor: colors.primary,
+                        }}
+                          onPress={() => deleteAFavorite(item?.id)}
+                        >
+                          <Text
+                            style={{
+                              color: "#FFF",
+                              fontFamily: 'readexRegular'
+                            }}
+                          >
+                            Remove
+                          </Text>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </View>
               </View>
             </Pressable>
