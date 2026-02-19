@@ -1,5 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import * as AuthSession from 'expo-auth-session';
 import { AuthTypes } from "@/schemas/auth.schema"
+import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export const loginWithPassword = async (data: AuthTypes) => {
   try {
@@ -36,12 +41,16 @@ export const logout = async () => {
   }
 }
 
-export const googelOAuthLogin = async () => {
+export const googleOAuthLogin = async () => {
   try {
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'google'
-    })
-  } catch (error) {
-    throw error
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+
+    if (error) {
+      console.error('Google login error:', error.message);
+    }
+  } catch (err) {
+    console.error('Login failed:', err);
   }
-}
+};
