@@ -112,7 +112,7 @@ const HistoryScreen = () => {
 
       {/*flatlist*/}
       <View className='flex-1 mt-2'>
-        <FlatList<History>
+        <FlatList
           data={ytVideos}
           keyExtractor={(item) => item?.videoId.toString()}
           showsVerticalScrollIndicator={false}

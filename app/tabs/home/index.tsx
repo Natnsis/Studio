@@ -18,6 +18,7 @@ const Home = () => {
   const { height, width } = Dimensions.get('window');
   const [loading, setLoading] = useState<boolean>(false);
   const { data: user, isLoading } = useUser();
+  const [historying, setHistorying] = useState<boolean>(false)
 
 
   const router = useRouter();
@@ -72,6 +73,31 @@ const Home = () => {
   });
 
   const displayedItem = ytVideos?.slice(0, 6) || [];
+
+  const handlePlayHistory = async (item: typeof displayedItem[0]) => {
+    if (!user?.id) return;
+
+    try {
+      setHistorying(true);
+      const ytUrl = `https://youtu.be/${item.videoId}`;
+      const res = await searchLink({ url: ytUrl, userId: user.id });
+
+      if (res && res.audioUrl) {
+        router.replace({
+          pathname: '/inner/player',
+          params: {
+            audioUrl: res.audioUrl,
+            title: res.title ?? '',
+            thumbnail: res.thumbnail ?? '',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error playing history item:', error);
+    } finally {
+      setHistorying(false);
+    }
+  };
 
   return (
     <SafeAreaView>
@@ -203,7 +229,8 @@ const Home = () => {
                     <Button
                       style={{ backgroundColor: colors.primary }}
                       className="items-center justify-center rounded-full"
-                      onPress={() => router.replace('/inner/player')}
+                      onPress={() => handlePlayHistory(item)}
+                      disabled={historying}
                     >
                       <Image
                         source={require('@/assets/images/play.png')}
