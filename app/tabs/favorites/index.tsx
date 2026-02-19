@@ -2,10 +2,28 @@ import { colors } from '@/assets/colors'
 import { View, Text, FlatList, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons';
-import { history, History } from '@/contants/history';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/hooks/useUser';
+import { useQuery } from '@tanstack/react-query';
+import { fetchFavoritesById } from '@/api/favorite.controller';
 
 const Favorites = () => {
+  const { data: user, isLoading } = useUser();
+
+  const { data: favorites } = useQuery({
+    queryKey: ['favorites', user?.id],
+    queryFn: () => fetchFavoritesById(user!.id),
+    enabled: !!user?.id
+  });
+
+
+  const truncateWords = (text: string, numWords = 3) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    if (words.length <= numWords) return text;
+    return words.slice(0, numWords).join(" ") + "...";
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -27,8 +45,8 @@ const Favorites = () => {
 
       {/*favorites flatlist*/}
       <View className='w-[100%]'>
-        <FlatList<History>
-          data={history}
+        <FlatList
+          data={favorites}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           numColumns={2}
@@ -37,7 +55,7 @@ const Favorites = () => {
           renderItem={({ item }) => (
             <View className="flex-1 border p-2 rounded-lg">
               <Image
-                source={require("@/assets/images/history/history5.jpg")}
+                source={{ uri: item.thumbnail }}
                 style={{
                   width: '100%',
                   height: 150
@@ -59,7 +77,7 @@ const Favorites = () => {
                     fontSize: 15
                   }}
                   className="mt-2 w-[60%]">
-                  {item.name}
+                  {truncateWords(item.name)}
                 </Text>
                 <Button
                   size="icon"
