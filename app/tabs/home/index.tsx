@@ -40,7 +40,14 @@ const Home = () => {
       console.log(res);
       if (res && res.audioUrl) {
         const q = `?audioUrl=${encodeURIComponent(res.audioUrl)}&title=${encodeURIComponent(res.title ?? '')}&thumbnail=${encodeURIComponent(res.thumbnail ?? '')}`;
-        router.replace(`/inner/player${q}`);
+        router.replace({
+          pathname: '/inner/player',
+          params: {
+            audioUrl: res.audioUrl,
+            title: res.title ?? '',
+            thumbnail: res.thumbnail ?? '',
+          },
+        });
         return;
       }
       setLoading(false);
