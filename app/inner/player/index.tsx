@@ -25,7 +25,7 @@ const Player = () => {
   const { height } = Dimensions.get("screen");
   const router = useRouter();
   const params = useLocalSearchParams();
-
+  const youtubeUrl = (params?.youtubeUrl as string);
   const audioUrl = (params?.audioUrl as string) || undefined;
   const titleParam = (params?.title as string) || "Unknown";
   const thumbnailParam = (params?.thumbnail as string) || undefined;
@@ -99,7 +99,7 @@ const Player = () => {
     if (!user?.id || !audioUrl) return;
     try {
       await addToFavorites({
-        url: audioUrl,
+        url: youtubeUrl,
         title: titleParam,
         thumbnail: thumbnailParam || "",
         user_id: user.id
