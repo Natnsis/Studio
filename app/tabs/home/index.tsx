@@ -18,6 +18,7 @@ const Home = () => {
   const { height, width } = Dimensions.get('window');
   const [loading, setLoading] = useState<boolean>(false);
   const { data: user, isLoading } = useUser();
+  const [historying, setHistorying] = useState<boolean>(false)
 
 
   const router = useRouter();
@@ -37,7 +38,6 @@ const Home = () => {
       setLoading(true);
       const userId = user?.id as string;
       const res = await searchLink({ ...data, userId });
-      console.log(res);
       if (res && res.audioUrl) {
         const q = `?audioUrl=${encodeURIComponent(res.audioUrl)}&title=${encodeURIComponent(res.title ?? '')}&thumbnail=${encodeURIComponent(res.thumbnail ?? '')}`;
         router.replace({
@@ -59,6 +59,7 @@ const Home = () => {
     }
   };
 
+
   const { data: linksResponse } = useQuery({
     queryKey: ['links', user?.id],
     queryFn: () => getLinks(user!.id),
@@ -72,6 +73,31 @@ const Home = () => {
   });
 
   const displayedItem = ytVideos?.slice(0, 6) || [];
+
+  const handlePlayHistory = async (item: typeof displayedItem[0]) => {
+    if (!user?.id) return;
+
+    try {
+      setHistorying(true);
+      const ytUrl = `https://youtu.be/${item.videoId}`;
+      const res = await searchLink({ url: ytUrl, userId: user.id });
+
+      if (res && res.audioUrl) {
+        router.replace({
+          pathname: '/inner/player',
+          params: {
+            audioUrl: res.audioUrl,
+            title: res.title ?? '',
+            thumbnail: res.thumbnail ?? '',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error playing history item:', error);
+    } finally {
+      setHistorying(false);
+    }
+  };
 
   return (
     <SafeAreaView>
@@ -133,10 +159,10 @@ const Home = () => {
                 width: width * 0.4,
               }}
               onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}>
+              disabled={loading}>
               <Feather name="search" size={18} color="#FFF" />
               <Text style={{ fontFamily: 'readexRegular', fontSize: 15 }} className="text-white">
-                {isLoading ? 'loading...' : 'Search'}
+                {loading ? 'searching...' : 'Search'}
               </Text>
             </Button>
           </View>
@@ -203,7 +229,9 @@ const Home = () => {
                     <Button
                       style={{ backgroundColor: colors.primary }}
                       className="items-center justify-center rounded-full"
-                      onPress={() => router.replace('/inner/player')}>
+                      onPress={() => handlePlayHistory(item)}
+                      disabled={historying}
+                    >
                       <Image
                         source={require('@/assets/images/play.png')}
                         style={{
