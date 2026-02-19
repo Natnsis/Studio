@@ -7,8 +7,10 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import Waveform from "@/components/WaveForm";
 import { Audio } from "expo-av";
 import { useEffect, useRef, useState } from "react";
+import { useUser } from "@/hooks/useUser";
 
 const Player = () => {
+  const { data: user, isLoading } = useUser();
   const { height } = Dimensions.get("screen");
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -104,8 +106,12 @@ const Player = () => {
           Now Playing
         </Text>
 
-        <Button size="icon" className="rounded-full">
-          <Feather name="heart" color="#FFF" size={20} />
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full"
+        >
+          <Feather name="heart" color={colors.secondary} size={20} />
         </Button>
       </View>
 
