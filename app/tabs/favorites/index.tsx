@@ -85,9 +85,6 @@ const Favorites = () => {
     }
   }
 
-
-  console.log(favorites?.[0]?.id)
-
   return (
     <SafeAreaView
       style={{

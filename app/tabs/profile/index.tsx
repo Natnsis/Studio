@@ -150,7 +150,6 @@ const Profile = () => {
           </Text>
         </Button>
       </View>
-
     </SafeAreaView >
   )
 }
