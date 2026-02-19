@@ -39,6 +39,7 @@ const Home = () => {
       const userId = user?.id as string;
       const res = await searchLink({ ...data, userId });
       if (res && res.audioUrl) {
+        const ytUrl = data.url;
         const q = `?audioUrl=${encodeURIComponent(res.audioUrl)}&title=${encodeURIComponent(res.title ?? '')}&thumbnail=${encodeURIComponent(res.thumbnail ?? '')}`;
         router.replace({
           pathname: '/inner/player',
@@ -46,6 +47,7 @@ const Home = () => {
             audioUrl: res.audioUrl,
             title: res.title ?? '',
             thumbnail: res.thumbnail ?? '',
+            youtubeUrl: ytUrl,
           },
         });
         return;
@@ -88,6 +90,7 @@ const Home = () => {
           params: {
             audioUrl: res.audioUrl,
             title: res.title ?? '',
+            youtubeUrl: ytUrl,
             thumbnail: res.thumbnail ?? '',
           },
         });

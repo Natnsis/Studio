@@ -59,6 +59,7 @@ const HistoryScreen = () => {
             audioUrl: res.audioUrl,
             title: res.title ?? '',
             thumbnail: res.thumbnail ?? '',
+            youtubeUrl: ytUrl,
           },
         });
       }
@@ -68,9 +69,6 @@ const HistoryScreen = () => {
       setHistorying(false);
     }
   };
-
-  /*
-    */
 
   return (
     <SafeAreaView
