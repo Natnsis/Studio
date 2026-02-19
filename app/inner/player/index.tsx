@@ -7,12 +7,25 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import Waveform from "@/components/WaveForm";
 import { Audio } from "expo-av";
 import { useEffect, useRef, useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { addToFavorites } from "@/api/favorite.controller";
 
 const Player = () => {
+  const { data: user, isLoading } = useUser();
   const { height } = Dimensions.get("screen");
   const router = useRouter();
   const params = useLocalSearchParams();
-
+  const youtubeUrl = (params?.youtubeUrl as string);
   const audioUrl = (params?.audioUrl as string) || undefined;
   const titleParam = (params?.title as string) || "Unknown";
   const thumbnailParam = (params?.thumbnail as string) || undefined;
@@ -82,6 +95,20 @@ const Player = () => {
     }
   };
 
+  const handleAddFavorite = async () => {
+    if (!user?.id || !audioUrl) return;
+    try {
+      await addToFavorites({
+        url: youtubeUrl,
+        title: titleParam,
+        thumbnail: thumbnailParam || "",
+        user_id: user.id
+      });
+    } catch (error) {
+      console.error("Failed to add to favorites:", error);
+    }
+  };
+
   return (
     <SafeAreaView
       style={{ backgroundColor: colors.background, flex: 1 }}
@@ -104,9 +131,52 @@ const Player = () => {
           Now Playing
         </Text>
 
-        <Button size="icon" className="rounded-full">
-          <Feather name="heart" color="#FFF" size={20} />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger>
+            <View className="p-2 rounded-gull">
+              <Feather name="heart" color={colors.secondary} size={20} />
+            </View>
+          </AlertDialogTrigger>
+          <AlertDialogContent style={{
+            backgroundColor: colors.background
+          }}>
+            <AlertDialogHeader>
+              <AlertDialogDescription style={{
+                fontFamily: 'readexLight'
+              }}>
+                want to add this audio to favorites?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row justify-center">
+              <AlertDialogCancel style={{
+                backgroundColor: colors.secondary
+              }}
+              >
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontFamily: 'readexRegular'
+                  }}
+                >
+                  Cancel
+                </Text>
+              </AlertDialogCancel>
+              <AlertDialogAction style={{
+                backgroundColor: colors.primary,
+              }}
+                onPress={handleAddFavorite}>
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontFamily: 'readexRegular'
+                  }}
+                >
+                  Proceed
+                </Text>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </View>
 
       {/* Image */}
