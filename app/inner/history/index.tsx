@@ -11,6 +11,13 @@ import { fetchYTData } from "@/api/youtube.data";
 import { useUser } from "@/hooks/useUser";
 import { useState, useMemo } from "react";
 
+interface YTVideo {
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail: string;
+}
+
 const HistoryScreen = () => {
   const router = useRouter()
   const { data: user } = useUser();
@@ -44,7 +51,7 @@ const HistoryScreen = () => {
     return filtered
   }, [ytVideos, searchText, ascending])
 
-  const handlePlayHistory = async (item: typeof ytVideos[0]) => {
+  const handlePlayHistory = async (item: YTVideo) => {
     if (!user?.id) return;
 
     try {
