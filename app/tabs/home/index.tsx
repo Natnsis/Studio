@@ -123,14 +123,13 @@ const Home = () => {
   return (
     <SafeAreaView>
       <View className="p-5" style={{ backgroundColor: colors.background, height: height }}>
-        {/*header*/}
         <View className="flex-row justify-between">
           <View>
             <Text style={{ fontFamily: 'readexBold', fontSize: 25 }}>
               {greeting}
             </Text>
             <Text style={{ fontFamily: 'readexRegular', fontSize: 12 }}>
-              Let's play some audio!
+              Let's play some audio ✨
             </Text>
           </View>
         </View>
@@ -191,7 +190,6 @@ const Home = () => {
           </View>
         </View>
 
-        {/*history*/}
         <View className="mt-8 flex-row justify-between">
           <Text
             style={{
@@ -212,7 +210,6 @@ const Home = () => {
           </Link>
         </View>
 
-        {/*flatlist*/}
         <View className="flex-1">
           {ytVideos ?
             <FlatList
@@ -271,12 +268,12 @@ const Home = () => {
             /> :
             <Text
               style={{
-                fontFamily: 'light',
+                fontFamily: 'readexLight',
                 fontSize: 12
               }}
               className='text-center'
             >
-              no history yet
+              No history yet
             </Text>
           }
         </View>
