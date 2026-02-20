@@ -26,7 +26,7 @@ const HistoryScreen = () => {
 
   const { data: ytVideos } = useQuery({
     queryKey: ['ytVideos', linksResponse?.data],
-    queryFn: () => fetchYTData(linksResponse!.data),
+    queryFn: () => fetchYTData(linksResponse?.data ?? []),
     enabled: !!linksResponse?.data?.length,
   });
 

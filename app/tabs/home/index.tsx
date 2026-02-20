@@ -20,7 +20,6 @@ const Home = () => {
   const { data: user } = useUser();
   const [historying, setHistorying] = useState<boolean>(false)
 
-
   const router = useRouter();
   const {
     control,
@@ -70,7 +69,7 @@ const Home = () => {
 
   const { data: ytVideos, isLoading: fetchingYT } = useQuery({
     queryKey: ['ytVideos', linksResponse?.data],
-    queryFn: () => fetchYTData(linksResponse!.data),
+    queryFn: () => fetchYTData(linksResponse?.data ?? []),
     enabled: !!linksResponse?.data?.length,
   });
 

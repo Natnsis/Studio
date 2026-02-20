@@ -21,11 +21,17 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useQueryClient } from '@tanstack/react-query';
 
+type Favorite = {
+  id: string;
+  url: string;
+  title?: string;
+  thumbnail?: string;
+};
 
 const Favorites = () => {
   const { data: user, isLoading } = useUser();
   const router = useRouter()
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const { data: favorites } = useQuery({
     queryKey: ['favorites', user?.id],
@@ -43,7 +49,7 @@ const Favorites = () => {
 
 
 
-  const handlePlayFavorite = async (item: typeof favorites[0]) => {
+  const handlePlayFavorite = async (item: Favorite) => {
     if (!user?.id) return;
     toast.success("streaming audio...");
 
