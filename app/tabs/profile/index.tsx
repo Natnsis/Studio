@@ -16,7 +16,7 @@ const openGithub = async () => {
   if (supported) {
     await Linking.openURL(url);
   } else {
-    console.log("Can't open URL");
+    toast.error('unable to open url')
   }
 };
 
@@ -44,7 +44,6 @@ const Profile = () => {
       toast.success('logged out successfully')
       router.replace('/login')
     } catch (err: any) {
-      console.log(err)
       toast.error("error while logging out")
       setLoading(false);
     }

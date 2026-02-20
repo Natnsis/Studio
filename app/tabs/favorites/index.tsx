@@ -29,7 +29,7 @@ type Favorite = {
 };
 
 const Favorites = () => {
-  const { data: user, isLoading } = useUser();
+  const { data: user } = useUser();
   const router = useRouter()
   const [loadingId, setLoadingId] = useState<string | null>(null);
 

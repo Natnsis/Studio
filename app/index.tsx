@@ -11,7 +11,6 @@ const index = () => {
   const { height, width } = Dimensions.get("window")
   const router = useRouter()
 
-  //TODO: redirect on app loaading state
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {

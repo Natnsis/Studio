@@ -10,6 +10,7 @@ import { getLinks, searchLink } from "@/api/link.controller";
 import { fetchYTData } from "@/api/youtube.data";
 import { useUser } from "@/hooks/useUser";
 import { useState, useMemo } from "react";
+import { toast } from "sonner-native";
 
 interface YTVideo {
   videoId: string;
@@ -37,28 +38,22 @@ const HistoryScreen = () => {
     enabled: !!linksResponse?.data?.length,
   });
 
-  // Filtered & sorted list
   const filteredVideos = useMemo(() => {
     if (!ytVideos) return []
-
     let filtered = ytVideos.filter(item =>
       item.title.toLowerCase().includes(searchText.toLowerCase()) ||
       item.channel.toLowerCase().includes(searchText.toLowerCase())
     )
-
     if (!ascending) filtered = filtered.reverse()
-
     return filtered
   }, [ytVideos, searchText, ascending])
 
   const handlePlayHistory = async (item: YTVideo) => {
     if (!user?.id) return;
-
     try {
       setHistorying(true);
       const ytUrl = `https://youtu.be/${item.videoId}`;
       const res = await searchLink({ url: ytUrl, userId: user.id });
-
       if (res && res.audioUrl) {
         router.replace({
           pathname: '/inner/player',
@@ -71,7 +66,7 @@ const HistoryScreen = () => {
         });
       }
     } catch (error) {
-      console.error('Error playing history item:', error);
+      toast.error('unable to play')
     } finally {
       setHistorying(false);
     }
@@ -82,7 +77,6 @@ const HistoryScreen = () => {
       style={{ height: '100%', backgroundColor: colors.background }}
       className="px-3 py-1"
     >
-      {/* header */}
       <View className="flex-row items-center">
         <Button
           size="icon"
@@ -101,7 +95,6 @@ const HistoryScreen = () => {
         </View>
       </View>
 
-      {/* search */}
       <View className="px-3 mt-3">
         <Input
           style={{ fontFamily: "readexExtraLight", fontSize: 13 }}
@@ -111,7 +104,6 @@ const HistoryScreen = () => {
         />
       </View>
 
-      {/* analysis */}
       <View className="mt-5 flex-row justify-between px-1">
         <Text style={{ fontFamily: "readexBold", fontSize: 15 }} className="mb-1">
           {filteredVideos.length} Items
@@ -124,10 +116,8 @@ const HistoryScreen = () => {
         </Button>
       </View>
 
-      {/* separator */}
       <View style={{ height: 1, backgroundColor: colors.typo, marginVertical: 5 }} />
 
-      {/* flatlist */}
       <View className='flex-1 mt-2'>
         <FlatList
           data={filteredVideos}

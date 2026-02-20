@@ -34,7 +34,6 @@ const Register = () => {
       router.push('/login')
     } catch (error) {
       toast.error("invalid credentials")
-      console.log(error)
     } finally {
       setIsLoading(false)
     }

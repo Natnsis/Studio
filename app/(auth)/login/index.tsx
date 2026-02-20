@@ -33,7 +33,6 @@ const Login = () => {
       router.push("/tabs/home")
     } catch (error) {
       toast.error("invalid credentials")
-      console.log(error)
     } finally {
       setIsLoading(false)
     }

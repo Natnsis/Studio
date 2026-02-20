@@ -13,6 +13,7 @@ import { getLinks, searchLink } from '@/api/link.controller';
 import { useUser } from '@/hooks/useUser';
 import { useQuery } from '@tanstack/react-query';
 import { fetchYTData } from '@/api/youtube.data';
+import { toast } from 'sonner-native';
 
 const Home = () => {
   const { height, width } = Dimensions.get('window');
@@ -54,12 +55,11 @@ const Home = () => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      throw error;
+      toast.error('unable to search the video')
     } finally {
       setLoading(false);
     }
   };
-
 
   const { data: linksResponse } = useQuery({
     queryKey: ['links', user?.id],
@@ -95,7 +95,7 @@ const Home = () => {
         });
       }
     } catch (error) {
-      console.error('Error playing history item:', error);
+      toast.error('error playing history');
     } finally {
       setHistorying(false);
     }
@@ -119,8 +119,6 @@ const Home = () => {
     const interval = setInterval(updateGreeting, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  console.log(displayedItem)
 
   return (
     <SafeAreaView>

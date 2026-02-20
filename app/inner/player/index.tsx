@@ -19,9 +19,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { addToFavorites } from "@/api/favorite.controller";
+import { toast } from "sonner-native";
 
 const Player = () => {
-  const { data: user, isLoading } = useUser();
+  const { data: user } = useUser();
   const { height } = Dimensions.get("screen");
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -38,35 +39,29 @@ const Player = () => {
 
   useEffect(() => {
     let mounted = true;
-
     const load = async () => {
       if (!audioUrl) return;
-
       try {
         await Audio.setAudioModeAsync({
           staysActiveInBackground: true,
           playsInSilentModeIOS: true,
           shouldDuckAndroid: true,
         });
-
         const { sound } = await Audio.Sound.createAsync(
           { uri: audioUrl },
           { shouldPlay: false },
           (status) => {
             if (!mounted || !status || !status.isLoaded) return;
-
             setPosition((status.positionMillis ?? 0) / 1000);
             setDuration((status.durationMillis ?? 1000) / 1000);
             setIsPlaying(status.isPlaying ?? false);
           }
         );
-
         soundRef.current = sound;
       } catch (e) {
-        console.log("Error loading audio:", e);
+        toast.error('error loading audio');
       }
     };
-
     load();
 
     return () => {
@@ -91,7 +86,7 @@ const Player = () => {
         await soundRef.current.playAsync();
       }
     } catch (e) {
-      console.log("Play toggle error:", e);
+      toast.error('play toggle error');
     }
   };
 
@@ -105,7 +100,7 @@ const Player = () => {
         user_id: user.id
       });
     } catch (error) {
-      console.error("Failed to add to favorites:", error);
+      toast.error('failed to add to favorites')
     }
   };
 
@@ -114,7 +109,6 @@ const Player = () => {
       style={{ backgroundColor: colors.background, flex: 1 }}
       className="p-3"
     >
-      {/* Header */}
       <View className="flex-row justify-between items-center">
         <Button
           onPress={() => router.replace("/tabs/home")}
@@ -179,7 +173,6 @@ const Player = () => {
         </AlertDialog>
       </View>
 
-      {/* Image */}
       <View className="mt-8 px-5">
         <Image
           style={{ height: height * 0.4, width: "100%" }}
@@ -192,7 +185,6 @@ const Player = () => {
         />
       </View>
 
-      {/* Title */}
       <View className="mt-5">
         <Text
           className="text-center"
@@ -204,7 +196,6 @@ const Player = () => {
         </Text>
       </View>
 
-      {/* Waveform */}
       <View style={{ height: 80, marginTop: 20 }}>
         <Waveform
           width={320}
@@ -213,7 +204,6 @@ const Player = () => {
         />
       </View>
 
-      {/* Controls */}
       <View className="flex-row justify-between mt-8 items-center">
         <Button variant="ghost">
           <Feather name="repeat" size={25} />
