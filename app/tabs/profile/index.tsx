@@ -41,7 +41,6 @@ const Profile = () => {
       setLoading(true);
       await logout();
       setLoading(false);
-      toast.success('logged out successfully')
       router.replace('/login')
     } catch (err: any) {
       toast.error("error while logging out")

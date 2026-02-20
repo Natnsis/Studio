@@ -51,7 +51,7 @@ const Favorites = () => {
 
   const handlePlayFavorite = async (item: Favorite) => {
     if (!user?.id) return;
-    toast.success("streaming audio...");
+    toast.success("wait a moment...");
 
     try {
       setLoadingId(item.id);
@@ -73,7 +73,7 @@ const Favorites = () => {
         });
       }
     } catch (error) {
-      console.error("Error playing favorite:", error);
+      toast.error('unable to play favorites')
     } finally {
       setLoadingId(null);
     }
@@ -87,7 +87,6 @@ const Favorites = () => {
       });
     } catch (error) {
       toast.error('unable to delete!')
-      console.log(error)
     }
   }
 

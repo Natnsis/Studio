@@ -3,7 +3,7 @@ import { Dimensions, View, Text, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Button } from "@/components/ui/button"
 import { Feather } from '@expo/vector-icons';
-import { useRouter } from "expo-router"
+import { useRouter, Link } from "expo-router"
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -39,7 +39,7 @@ const index = () => {
               fontSize: 35,
             }}
           >
-            Songs make the journey of life worthwhile
+            Your favorite YouTube tracks, now in audio
           </Text>
         </View>
         <View className="px-5 pt-5">
@@ -65,12 +65,16 @@ const index = () => {
             <Feather name="arrow-right" size={28} color="#FFFFFF" />
           </Button>
         </View>
-        <Text
+        <Link
           className="mt-5 text-center underline"
-          style={{
-            fontFamily: "readexSemiBold",
-          }}>
-          Terms of use</Text>
+          href='/terms'>
+          <Text
+            style={{
+              fontFamily: "readexSemiBold",
+            }}>
+            Terms of use
+          </Text>
+        </Link>
       </View>
     </SafeAreaView >
   )
