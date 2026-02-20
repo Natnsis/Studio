@@ -15,34 +15,48 @@ type YTVideo = {
 };
 
 export const fetchYTData = async (links: Link[]): Promise<YTVideo[]> => {
+  console.log("YT API Key Loaded:", process.env.EXPO_PUBLIC_YT_KEY);
   try {
     if (!links || links.length === 0) return [];
 
     const extractVideoId = (url: string) => {
-      const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})(?:\?|&|$)/);
+      const regex = /(?:youtube\.com\/.*v=|youtu\.be\/)([0-9A-Za-z_-]{11})/;
+      const match = url.match(regex);
       return match ? match[1] : null;
     };
 
-    const videoIds = [
-      ...new Set(
+    // Extract unique, valid video IDs
+    const videoIds = Array.from(
+      new Set(
         links
           .map(link => extractVideoId(link.url))
           .filter(Boolean)
-      ),
-    ] as string[];
+      )
+    ) as string[];
 
-    if (videoIds.length === 0) return [];
+    console.log("Extracted video IDs:", videoIds);
 
-    const response = await axios.get(
-      "https://www.googleapis.com/youtube/v3/videos",
-      {
-        params: {
-          part: "snippet",
-          id: videoIds.join(","),
-          key: process.env.EXPO_PUBLIC_YT_KEY,
-        },
-      }
-    );
+    if (!videoIds.length) return [];
+
+    // Limit to 50 IDs per YouTube API request
+    const limitedVideoIds = videoIds.slice(0, 50);
+
+    if (!process.env.EXPO_PUBLIC_YT_KEY) {
+      console.error("YouTube API key is missing!");
+      return [];
+    }
+
+    console.log("Making YT API request with IDs:", limitedVideoIds);
+
+    const response = await axios.get("https://www.googleapis.com/youtube/v3/videos", {
+      params: {
+        part: "snippet",
+        id: limitedVideoIds.join(","),
+        key: process.env.EXPO_PUBLIC_YT_KEY,
+      },
+    });
+
+    console.log("YT API Response items:", response.data.items);
 
     const videos: YTVideo[] = response.data.items.map((item: any) => ({
       videoId: item.id,
@@ -51,9 +65,11 @@ export const fetchYTData = async (links: Link[]): Promise<YTVideo[]> => {
       thumbnail: item.snippet.thumbnails.high.url,
     }));
 
+    console.log("Mapped videos:", videos);
+
     return videos;
-  } catch (error) {
-    console.log("YT Fetch Error:", error);
+  } catch (error: any) {
+    console.log("YT Fetch Error:", error.response?.data || error.message || error);
     return [];
   }
 };

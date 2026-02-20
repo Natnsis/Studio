@@ -10,7 +10,7 @@ import { AuthSchema, AuthTypes } from "@/schemas/auth.schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner-native"
 import { useState } from "react"
-import { registerWithPassword } from "@/api/auth.controller"
+import { googleOAuthLogin, registerWithPassword } from "@/api/auth.controller"
 import { Feather } from '@expo/vector-icons';
 
 const Register = () => {
@@ -162,6 +162,7 @@ const Register = () => {
         <Button
           variant="outline"
           className="flex-row items-center w-full jusitify-center"
+          onPress={googleOAuthLogin}
         >
           <Image
             source={require("@/assets/images/google.png")}
@@ -170,7 +171,9 @@ const Register = () => {
           <Text
             className="w-[60%]"
             style={{ fontFamily: "readexRegular" }}
-          >Continue with Google</Text>
+          >
+            Continue with Google
+          </Text>
         </Button>
 
         <View className="flex-row justify-center items-center mt-4">

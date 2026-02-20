@@ -1,8 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import * as AuthSession from 'expo-auth-session';
 import { AuthTypes } from "@/schemas/auth.schema"
-import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -43,14 +42,21 @@ export const logout = async () => {
 
 export const googleOAuthLogin = async () => {
   try {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const redirectTo = Linking.createURL('/tabs/home');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo,
+      },
     });
 
-    if (error) {
-      console.error('Google login error:', error.message);
+    if (error) throw error;
+
+    if (data?.url) {
+      await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
     }
   } catch (err) {
-    console.error('Login failed:', err);
+    console.error('Google login failed:', err);
   }
 };

@@ -17,7 +17,7 @@ import { fetchYTData } from '@/api/youtube.data';
 const Home = () => {
   const { height, width } = Dimensions.get('window');
   const [loading, setLoading] = useState<boolean>(false);
-  const { data: user, isLoading } = useUser();
+  const { data: user } = useUser();
   const [historying, setHistorying] = useState<boolean>(false)
 
 
@@ -120,6 +120,8 @@ const Home = () => {
     const interval = setInterval(updateGreeting, 60000);
     return () => clearInterval(interval);
   }, []);
+
+  console.log(displayedItem)
 
   return (
     <SafeAreaView>

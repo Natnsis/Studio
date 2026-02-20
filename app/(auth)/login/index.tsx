@@ -161,7 +161,7 @@ const Login = () => {
         <Button
           variant="outline"
           className="flex-row items-center w-full jusitify-center"
-          onPress={() => googleOAuthLogin}
+          onPress={googleOAuthLogin}
         >
           <Image
             source={require("@/assets/images/google.png")}
@@ -170,7 +170,9 @@ const Login = () => {
           <Text
             className="w-[60%]"
             style={{ fontFamily: "readexRegular" }}
-          >Continue with Google</Text>
+          >
+            Continue with Google
+          </Text>
         </Button>
 
         <View className="flex-row justify-center items-center mt-4">
