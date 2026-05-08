@@ -1,17 +1,18 @@
-import 'react-native-url-polyfill/auto';
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { createClient, processLock } from '@supabase/supabase-js'
+// Supabase integration disabled for local-only playback
+// This file is kept to avoid import errors but will not initialize if environment variables are missing
 
-export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  process.env.EXPO_PUBLIC_SUPABASE_KEY!,
-  {
-    auth: {
-      storage: AsyncStorage,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-      lock: processLock,
-    },
-  })
-
+export const supabase = {
+  auth: {
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    getSession: async () => ({ data: { session: null }, error: null }),
+    signOut: async () => ({ error: null }),
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        single: () => ({ data: null, error: null }),
+        order: () => ({ data: [], error: null }),
+      }),
+    }),
+  }),
+};

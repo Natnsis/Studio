@@ -3,81 +3,101 @@ import { Dimensions, View, Text, Image } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Button } from "@/components/ui/button"
 import { Feather } from '@expo/vector-icons';
-import { useRouter, Link } from "expo-router"
-import { useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { useRouter } from "expo-router"
+import { useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const index = () => {
+const Index = () => {
   const { height, width } = Dimensions.get("window")
   const router = useRouter()
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session) {
-          router.replace("/tabs/home");
-        }
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    checkOnboarding();
   }, []);
 
+  const checkOnboarding = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@onboarding_seen');
+      if (value !== null) {
+        router.replace("/tabs/home");
+      } else {
+        setLoading(false);
+      }
+    } catch (e) {
+      setLoading(false);
+    }
+  };
+
+  const handleGetStarted = async () => {
+    try {
+      await AsyncStorage.setItem('@onboarding_seen', 'true');
+      router.replace("/tabs/home");
+    } catch (e) {
+      router.replace("/tabs/home");
+    }
+  };
+
+  if (loading) return null;
+
   return (
-    <SafeAreaView style={{ backgroundColor: colors.background, height: "100%" }}>
-      <View className="w-full h-full">
+    <SafeAreaView style={{ backgroundColor: colors.background, flex: 1 }}>
+      <View className="flex-1">
         <Image
           source={require("@/assets/images/overview.png")}
-          style={{ height: height * 0.65, width: width }}
+          style={{ height: height * 0.6, width: width }}
+          resizeMode="cover"
         />
-        <View className="px-5">
+        <View className="px-6 mt-8">
           <Text
             style={{
-              fontFamily: "readexSemiBold",
-              fontSize: 35,
+              fontFamily: "readexBold",
+              fontSize: 32,
+              lineHeight: 40,
+              color: colors.typo
             }}
           >
             Your favorite YouTube tracks, now in audio
           </Text>
+          <Text
+            className="mt-4 text-gray-600"
+            style={{
+              fontFamily: "readexRegular",
+              fontSize: 16,
+            }}
+          >
+            Experience YouTube videos as audio. No ads, no tracking, just pure sound in the background.
+          </Text>
         </View>
-        <View className="px-5 pt-5">
+        <View className="px-6 mt-10">
           <Button
             style={{
               backgroundColor: colors.primary,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.7,
-              shadowRadius: 4,
+              height: 64,
+              borderRadius: 32,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.3,
+              shadowRadius: 12,
+              elevation: 10
             }}
-            className="border shadow-lg h-25"
-            onPress={() => router.replace("/register")}
+            className="flex-row items-center justify-between px-8"
+            onPress={handleGetStarted}
           >
             <Text
-              className="text-white"
+              className="text-white text-lg"
               style={{
-                fontFamily: "readexSemiBold",
+                fontFamily: "readexBold",
               }}>
-              SIGN UP
+              GET STARTED
             </Text>
 
-            <Feather name="arrow-right" size={28} color="#FFFFFF" />
+            <Feather name="arrow-right" size={24} color="#FFFFFF" />
           </Button>
         </View>
-        <Link
-          className="mt-5 text-center underline"
-          href='/terms'>
-          <Text
-            style={{
-              fontFamily: "readexSemiBold",
-            }}>
-            Terms of use
-          </Text>
-        </Link>
       </View>
     </SafeAreaView >
   )
 }
 
-export default index
+export default Index;

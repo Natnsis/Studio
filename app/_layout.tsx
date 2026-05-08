@@ -8,6 +8,10 @@ import { useColorScheme } from 'nativewind';
 import { Toaster } from 'sonner-native';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+import { Audio } from 'expo-av';
+import { useEffect } from 'react';
+import { PlayerProvider } from '@/context/PlayerContext';
+import GlobalPlayer from '@/components/GlobalPlayer';
 
 export {
   ErrorBoundary,
@@ -25,19 +29,38 @@ export default function RootLayout() {
     readexExtraLight: require("@/assets/fonts/ReadexPro-ExtraLight.ttf")
   });
 
+  useEffect(() => {
+    console.log("RootLayout: [SETTING UP AUDIO SESSION]");
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
+    }).then(() => {
+      console.log("RootLayout: [AUDIO SESSION READY]");
+    }).catch(e => {
+      console.error("RootLayout: [AUDIO SESSION ERROR]", e);
+    });
+  }, []);
+
   if (!loaded) return null;
 
   const queryClient = new QueryClient()
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={NAV_THEME[colorScheme ?? "light"]}>
-        <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </QueryClientProvider>
-        <PortalHost />
-        <Toaster />
-      </ThemeProvider>
+      <PlayerProvider>
+        <ThemeProvider value={NAV_THEME[colorScheme ?? "light"]}>
+          <QueryClientProvider client={queryClient}>
+            <Stack screenOptions={{ headerShown: false }} />
+          </QueryClientProvider>
+          <PortalHost />
+          <Toaster />
+        </ThemeProvider>
+        {/* The Audio Engine lives here at the root, so it never unmounts during navigation */}
+        <GlobalPlayer />
+      </PlayerProvider>
     </GestureHandlerRootView>
   );
 }
