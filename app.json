@@ -15,16 +15,12 @@
       "backgroundColor": "#FFF9E8"
     },
 
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
 
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": [
-          "audio"
-        ]
+        "UIBackgroundModes": ["audio"]
       }
     },
 
@@ -33,7 +29,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#FFF9E8"
-      }
+      },
+      "backgroundAudio": true
     },
 
     "web": {
@@ -42,10 +39,7 @@
       "favicon": "./assets/images/logo.png"
     },
 
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ],
+    "plugins": ["expo-router", "expo-font"],
 
     "experiments": {
       "typedRoutes": true

@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import { deleteFavorites, fetchFavoritesById } from '@/api/favorite.controller';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { searchLink } from '@/api/link.controller';
 import { toast } from 'sonner-native';
 import {
   AlertDialog,
@@ -26,6 +25,11 @@ type Favorite = {
   url: string;
   title?: string;
   thumbnail?: string;
+};
+
+const getYoutubeId = (url: string) => {
+  const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+  return match && match[2].length === 11 ? match[2] : null;
 };
 
 const Favorites = () => {
@@ -50,28 +54,25 @@ const Favorites = () => {
 
 
   const handlePlayFavorite = async (item: Favorite) => {
-    if (!user?.id) return;
-    toast.success("wait a moment...");
+    const videoId = getYoutubeId(item.url);
+
+    if (!videoId) {
+      toast.error('invalid YouTube link');
+      return;
+    }
 
     try {
       setLoadingId(item.id);
 
-      const res = await searchLink({
-        url: item.url,
-        userId: user.id,
+      router.replace({
+        pathname: "/inner/player",
+        params: {
+          videoId,
+          title: item.title,
+          thumbnail: item.thumbnail,
+          youtubeUrl: item.url,
+        },
       });
-
-      if (res?.audioUrl) {
-        router.replace({
-          pathname: "/inner/player",
-          params: {
-            audioUrl: res.audioUrl,
-            title: res.title ?? item.title,
-            thumbnail: res.thumbnail ?? item.thumbnail,
-            youtubeUrl: item.url,
-          },
-        });
-      }
     } catch (error) {
       toast.error('unable to play favorites')
     } finally {

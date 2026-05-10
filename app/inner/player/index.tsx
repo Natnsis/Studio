@@ -4,27 +4,57 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/button";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import AudioEngine from "@/components/AudioEngine";
 import { usePlayer } from "@/context/PlayerContext";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2, Info } from 'lucide-react-native';
 import { ActivityIndicator } from "react-native";
+
+const getStringParam = (value: string | string[] | undefined) => {
+  if (Array.isArray(value)) return value[0];
+  return value;
+};
+
+const getYoutubeId = (url?: string) => {
+  if (!url) return null;
+
+  const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+  return match && match[2].length === 11 ? match[2] : null;
+};
 
 const Player = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const videoId = (params?.videoId as string);
-  const youtubeUrl = (params?.youtubeUrl as string);
+  const youtubeUrl = getStringParam(params?.youtubeUrl);
+  const videoId = getStringParam(params?.videoId) || getYoutubeId(youtubeUrl);
+  const routeTitle = getStringParam(params?.title);
   const { height, width } = Dimensions.get('window');
+  const lastPlayKeyRef = useRef<string | null>(null);
   
-  const { videoId: currentVideoId, playing, play, pause, title } = usePlayer();
+  const { videoId: currentVideoId, playing, loading, error, play, pause, resume, title } = usePlayer();
+
+  const togglePlayback = () => {
+    if (playing) {
+      pause();
+      return;
+    }
+
+    if (currentVideoId && !error) {
+      resume();
+      return;
+    }
+
+    play(currentVideoId || videoId, { youtubeUrl, title: routeTitle });
+  };
 
   useEffect(() => {
     // If we navigate here with a new videoId, start playing it
-    if (videoId && videoId !== currentVideoId) {
-      play(videoId);
+    const playKey = videoId || null;
+
+    if (videoId && playKey !== lastPlayKeyRef.current) {
+      lastPlayKeyRef.current = playKey;
+      play(videoId, { youtubeUrl, title: routeTitle });
     }
-  }, [videoId]);
+  }, [routeTitle, videoId, youtubeUrl]);
 
   const thumbnailUrl = currentVideoId 
     ? `https://img.youtube.com/vi/${currentVideoId}/maxresdefault.jpg` 
@@ -90,10 +120,10 @@ const Player = () => {
             <View className="flex-row justify-between items-start mb-6">
               <View className="flex-1 mr-4">
                 <Text className="text-[10px] font-bold tracking-[2px] text-white/40 mb-1 uppercase">
-                  Now Streaming
+                  {loading ? 'Loading Audio' : error ? 'Playback Error' : 'Now Streaming'}
                 </Text>
                 <Text className="text-xl font-bold text-white leading-7" numberOfLines={2}>
-                  {title}
+                  {error || title}
                 </Text>
               </View>
               <View className="bg-white/5 p-2 rounded-full">
@@ -107,7 +137,8 @@ const Player = () => {
               </TouchableOpacity>
 
               <TouchableOpacity 
-                onPress={() => playing ? pause() : play(currentVideoId!)}
+                onPress={togglePlayback}
+                disabled={loading}
                 className={`h-20 w-20 items-center justify-center rounded-full bg-white`}
                 style={{ 
                   shadowColor: '#fff', 
@@ -117,7 +148,9 @@ const Player = () => {
                   elevation: 10
                 }}
               >
-                {playing ? (
+                {loading ? (
+                  <ActivityIndicator color="black" />
+                ) : playing ? (
                   <Pause size={36} color="black" fill="black" />
                 ) : (
                   <Play size={36} color="black" fill="black" style={{ marginLeft: 4 }} />

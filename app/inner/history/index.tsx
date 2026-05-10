@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
-import { getLinks, searchLink } from "@/api/link.controller";
+import { getLinks } from "@/api/link.controller";
 import { fetchYTData } from "@/api/youtube.data";
 import { useUser } from "@/hooks/useUser";
 import { useState, useMemo } from "react";
@@ -49,22 +49,18 @@ const HistoryScreen = () => {
   }, [ytVideos, searchText, ascending])
 
   const handlePlayHistory = async (item: YTVideo) => {
-    if (!user?.id) return;
     try {
       setHistorying(true);
       const ytUrl = `https://youtu.be/${item.videoId}`;
-      const res = await searchLink({ url: ytUrl, userId: user.id });
-      if (res && res.audioUrl) {
-        router.replace({
-          pathname: '/inner/player',
-          params: {
-            audioUrl: res.audioUrl,
-            title: res.title ?? '',
-            thumbnail: res.thumbnail ?? '',
-            youtubeUrl: ytUrl,
-          },
-        });
-      }
+      router.replace({
+        pathname: '/inner/player',
+        params: {
+          videoId: item.videoId,
+          title: item.title,
+          thumbnail: item.thumbnail,
+          youtubeUrl: ytUrl,
+        },
+      });
     } catch (error) {
       toast.error('unable to play')
     } finally {
