@@ -6,106 +6,51 @@ import { View } from "react-native"
 const TabLayout = () => {
   return (
     <Tabs
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ 
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopWidth: 1.5,
+          borderTopColor: colors.typo,
+          height: 60,
+          paddingBottom: 10,
+        }
+      }}
     >
       <Tabs.Screen
         name="home/index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ focused, size }) => (
+          tabBarIcon: ({ focused }) => (
             <View
               style={{
                 backgroundColor: focused ? colors.primary : "transparent",
-                width: focused ? 36 : size,
-                height: focused ? 36 : size,
-                borderRadius: 18,
+                width: 40,
+                height: 40,
+                borderRadius: 20,
                 justifyContent: "center",
                 alignItems: "center",
               }}
             >
               <Feather
                 name="home"
-                size={focused ? 18 : size}
-                color={focused ? "#FFFFFF" : "#9CA3AF"}
+                size={20}
+                color={focused ? "#FFFFFF" : colors.typo}
               />
             </View>
           ),
+          tabBarLabelStyle: {
+            fontFamily: 'readexMedium',
+            fontSize: 10
+          }
         }}
       />
-
-      <Tabs.Screen
-        name="favorites/index"
-        options={{
-          title: 'Favorites',
-          tabBarIcon: ({ focused, size }) => (
-            <View
-              style={{
-                backgroundColor: focused ? colors.primary : "transparent",
-                width: focused ? 36 : size,
-                height: focused ? 36 : size,
-                borderRadius: 18,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Feather
-                name="heart"
-                size={focused ? 18 : size}
-                color={focused ? "#FFFFFF" : "#9CA3AF"} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore/index"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ focused, size }) => (
-            <View
-              style={{
-                backgroundColor: focused ? colors.primary : "transparent",
-                width: focused ? 36 : size,
-                height: focused ? 36 : size,
-                borderRadius: 18,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Feather
-                name="compass"
-                size={focused ? 18 : size}
-                color={focused ? "#FFFFFF" : "#9CA3AF"} />
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile/index"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused, size }) => (
-            <View
-              style={{
-                backgroundColor: focused ? colors.primary : "transparent",
-                width: focused ? 36 : size,
-                height: focused ? 36 : size,
-                borderRadius: 18,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Feather
-                name="user"
-                size={focused ? 18 : size}
-                color={focused ? "#FFFFFF" : "#9CA3AF"} />
-            </View>
-          ),
-        }}
-      />
-
+      
+      <Tabs.Screen name="favorites/index" options={{ href: null }} />
+      <Tabs.Screen name="explore/index" options={{ href: null }} />
+      <Tabs.Screen name="profile/index" options={{ href: null }} />
     </Tabs>
-
   )
 }
 
-export default TabLayout
+export default TabLayout;

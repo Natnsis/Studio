@@ -1,31 +1,40 @@
 import { colors } from '@/assets/colors';
-import { View, Text, Dimensions, FlatList, Image } from 'react-native';
+import { View, Text, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Feather } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { SearchSchema, SearchType } from '@/schemas/search.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { getLinks, searchLink } from '@/api/link.controller';
-import { useUser } from '@/hooks/useUser';
-import { useQuery } from '@tanstack/react-query';
-import { fetchYTData } from '@/api/youtube.data';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toast } from 'sonner-native';
+
+const getYoutubeId = (url: string) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+interface HistoryItem {
+  id: string;
+  videoId: string;
+  title: string;
+  timestamp: number;
+}
 
 const Home = () => {
   const { height, width } = Dimensions.get('window');
-  const [loading, setLoading] = useState<boolean>(false);
-  const { data: user } = useUser();
-  const [historying, setHistorying] = useState<boolean>(false)
-
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const router = useRouter();
+  
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm<SearchType>({
     resolver: zodResolver(SearchSchema),
     defaultValues: {
@@ -33,122 +42,98 @@ const Home = () => {
     },
   });
 
-  const onSubmit = async (data: SearchType) => {
-    try {
-      setLoading(true);
-      const userId = user?.id as string;
-      const res = await searchLink({ ...data, userId });
-      if (res && res.audioUrl) {
-        const ytUrl = data.url;
-        const q = `?audioUrl=${encodeURIComponent(res.audioUrl)}&title=${encodeURIComponent(res.title ?? '')}&thumbnail=${encodeURIComponent(res.thumbnail ?? '')}`;
-        router.replace({
-          pathname: '/inner/player',
-          params: {
-            audioUrl: res.audioUrl,
-            title: res.title ?? '',
-            thumbnail: res.thumbnail ?? '',
-            youtubeUrl: ytUrl,
-          },
-        });
-        return;
-      }
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      toast.error('unable to search the video')
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const { data: linksResponse } = useQuery({
-    queryKey: ['links', user?.id],
-    queryFn: () => getLinks(user!.id),
-    enabled: !!user?.id,
-  });
-
-  const { data: ytVideos, isLoading: fetchingYT } = useQuery({
-    queryKey: ['ytVideos', linksResponse?.data],
-    queryFn: () => fetchYTData(linksResponse?.data ?? []),
-    enabled: !!linksResponse?.data?.length,
-  });
-
-  const displayedItem = ytVideos?.slice(0, 6) || [];
-
-  const handlePlayHistory = async (item: typeof displayedItem[0]) => {
-    if (!user?.id) return;
-
-    try {
-      setHistorying(true);
-      const ytUrl = `https://youtu.be/${item.videoId}`;
-      const res = await searchLink({ url: ytUrl, userId: user.id });
-
-      if (res && res.audioUrl) {
-        router.replace({
-          pathname: '/inner/player',
-          params: {
-            audioUrl: res.audioUrl,
-            title: res.title ?? '',
-            youtubeUrl: ytUrl,
-            thumbnail: res.thumbnail ?? '',
-          },
-        });
-      }
-    } catch (error) {
-      toast.error('error playing history');
-    } finally {
-      setHistorying(false);
-    }
-  };
-  const [greeting, setGreeting] = useState("");
-  const updateGreeting = () => {
-    const currentHour = new Date().getHours();
-    if (currentHour >= 5 && currentHour < 12) {
-      setGreeting("Good Morning!");
-    } else if (currentHour >= 12 && currentHour < 17) {
-      setGreeting("Good Afternoon!");
-    } else if (currentHour >= 17 && currentHour < 21) {
-      setGreeting("Good Evening!");
-    } else {
-      setGreeting("Good Night!");
-    }
-  };
-
   useEffect(() => {
-    updateGreeting();
-    const interval = setInterval(updateGreeting, 60000);
-    return () => clearInterval(interval);
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    try {
+      const savedHistory = await AsyncStorage.getItem('@play_history');
+      if (savedHistory) {
+        setHistory(JSON.parse(savedHistory));
+      }
+    } catch (e) {
+      console.error('Failed to load history');
+    }
+  };
+
+  const saveToHistory = async (videoId: string, url: string) => {
+    try {
+      const newItem: HistoryItem = {
+        id: Date.now().toString(),
+        videoId,
+        title: `Video ${videoId}`,
+        timestamp: Date.now(),
+      };
+      
+      const savedHistory = await AsyncStorage.getItem('@play_history');
+      const currentHistory = savedHistory ? JSON.parse(savedHistory) : [];
+      const updatedHistory = [newItem, ...currentHistory.filter((item: HistoryItem) => item.videoId !== videoId)].slice(0, 10);
+      
+      setHistory(updatedHistory);
+      await AsyncStorage.setItem('@play_history', JSON.stringify(updatedHistory));
+    } catch (e) {
+      console.error('Failed to save history');
+    }
+  };
+
+  const onSubmit = async (data: SearchType) => {
+    const videoId = getYoutubeId(data.url);
+    if (!videoId) {
+      toast.error('Invalid YouTube URL');
+      return;
+    }
+
+    await saveToHistory(videoId, data.url);
+    reset();
+    
+    router.push({
+      pathname: '/inner/player',
+      params: { videoId, youtubeUrl: data.url },
+    });
+  };
+
+  const handlePlayHistory = (item: HistoryItem) => {
+    router.push({
+      pathname: '/inner/player',
+      params: { videoId: item.videoId, youtubeUrl: `https://www.youtube.com/watch?v=${item.videoId}` },
+    });
+  };
+
+  const [greeting, setGreeting] = useState("");
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 5 && currentHour < 12) setGreeting("Good Morning!");
+    else if (currentHour >= 12 && currentHour < 17) setGreeting("Good Afternoon!");
+    else if (currentHour >= 17 && currentHour < 21) setGreeting("Good Evening!");
+    else setGreeting("Good Night!");
   }, []);
 
   return (
-    <SafeAreaView>
-      <View className="p-5" style={{ backgroundColor: colors.background, height: height }}>
-        <View className="flex-row justify-between">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
+      <View className="p-5 flex-1">
+        <View className="flex-row justify-between items-center">
           <View>
-            <Text style={{ fontFamily: 'readexBold', fontSize: 25 }}>
+            <Text style={{ fontFamily: 'readexBold', fontSize: 28, color: colors.typo }}>
               {greeting}
             </Text>
-            <Text style={{ fontFamily: 'readexRegular', fontSize: 12 }}>
-              Let's play some audio ✨
+            <Text style={{ fontFamily: 'readexRegular', fontSize: 14, color: 'gray' }}>
+              Drop a link and let the music play ✨
             </Text>
           </View>
         </View>
 
-        {/*search*/}
         <View
           style={{
-            height: height * 0.2,
             backgroundColor: colors.secondary,
             borderColor: colors.typo,
-
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.25,
-            shadowRadius: 8,
-
-            elevation: 20,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 10,
           }}
-          className="mt-5 rounded-xl border-2 p-5">
+          className="mt-8 rounded-2xl border-[1.5px] p-6">
           <Controller
             control={control}
             name="url"
@@ -157,16 +142,12 @@ const Home = () => {
                 <Input
                   value={value}
                   onChangeText={onChange}
-                  placeholder="https://youtube/url-name/id-123?.."
-                  style={{ fontFamily: 'readexLight', fontSize: 10 }}
+                  placeholder="Paste YouTube Link here..."
+                  style={{ fontFamily: 'readexRegular', fontSize: 14, height: 50 }}
+                  className="bg-white rounded-xl px-4"
                 />
                 {errors.url && (
-                  <Text
-                    style={{
-                      fontFamily: 'readexRegular',
-                      fontSize: 10,
-                    }}
-                    className="text-center">
+                  <Text className="text-red-500 mt-2 ml-1" style={{ fontFamily: 'readexRegular', fontSize: 12 }}>
                     {errors.url.message}
                   </Text>
                 )}
@@ -174,108 +155,71 @@ const Home = () => {
             )}
           />
 
-          <View className="mt-5 flex-row justify-center">
-            <Button
-              style={{
-                backgroundColor: colors.primary,
-                width: width * 0.4,
-              }}
-              onPress={handleSubmit(onSubmit)}
-              disabled={loading}>
-              <Feather name="search" size={18} color="#FFF" />
-              <Text style={{ fontFamily: 'readexRegular', fontSize: 15 }} className="text-white">
-                {loading ? 'searching...' : 'Search'}
-              </Text>
-            </Button>
-          </View>
+          <Button
+            style={{
+              backgroundColor: colors.primary,
+              height: 50,
+              borderRadius: 25,
+            }}
+            className="mt-4 flex-row items-center justify-center"
+            onPress={handleSubmit(onSubmit)}>
+            <Feather name="play" size={18} color="#FFF" />
+            <Text style={{ fontFamily: 'readexBold', fontSize: 16 }} className="text-white ml-2">
+              Play Now
+            </Text>
+          </Button>
         </View>
 
-        <View className="mt-8 flex-row justify-between">
-          <Text
-            style={{
-              fontFamily: 'readexBold',
-              fontSize: 18,
-            }}>
+        <View className="mt-10 flex-row justify-between items-center">
+          <Text style={{ fontFamily: 'readexBold', fontSize: 20, color: colors.typo }}>
             Recently Played
           </Text>
-          <Link href="/inner/history">
-            <Text
-              style={{
-                fontFamily: 'readexExtraLight',
-                fontSize: 13,
-              }}
-              className="underline">
-              View More
-            </Text>
-          </Link>
+          {history.length > 0 && (
+            <TouchableOpacity onPress={async () => {
+              await AsyncStorage.removeItem('@play_history');
+              setHistory([]);
+            }}>
+              <Text style={{ fontFamily: 'readexRegular', fontSize: 12, color: 'red' }}>
+                Clear All
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        <View className="flex-1">
-          {ytVideos ?
+        <View className="flex-1 mt-4">
+          {history.length > 0 ? (
             <FlatList
-              data={displayedItem}
-              keyExtractor={(item) => item?.videoId.toString()}
+              data={history}
+              keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }) => (
-                <View className="mb-3 flex-row justify-between">
-                  <View className="w-[60%] flex-row">
-                    <Image
-                      source={{ uri: item?.thumbnail }}
-                      style={{ width: 70, height: 70 }}
-                      className="rounded-sm border"
-                    />
-                    <View className="ml-2 flex-col justify-center">
-                      <Text
-                        style={{
-                          fontFamily: 'readexBold',
-                          fontSize: 14,
-                        }}
-                        className="capitalize">
-                        {item.title.length > 15
-                          ? item.title.slice(0, 15) + "..."
-                          : item.title}
-                      </Text>
-                      <Text
-                        style={{
-                          fontFamily: 'readexExtraLight',
-                          fontSize: 12,
-                        }}
-                        className="capitalize">
-                        {item.channel}
-                      </Text>
-                    </View>
+                <TouchableOpacity 
+                  onPress={() => handlePlayHistory(item)}
+                  className="mb-4 flex-row items-center bg-white p-3 rounded-xl border-[1px] border-gray-100"
+                >
+                  <View className="w-12 h-12 bg-gray-100 rounded-lg items-center justify-center">
+                    <Feather name="music" size={20} color={colors.primary} />
                   </View>
-                  <View className="flex-col justify-center">
-                    <Button
-                      style={{ backgroundColor: colors.primary }}
-                      className="items-center justify-center rounded-full"
-                      onPress={() => handlePlayHistory(item)}
-                      disabled={historying}
-                    >
-                      <Image
-                        source={require('@/assets/images/play.png')}
-                        style={{
-                          width: 15,
-                          height: 15,
-                          tintColor: 'white',
-                        }}
-                        resizeMode="contain"
-                      />
-                    </Button>
+                  <View className="ml-4 flex-1">
+                    <Text style={{ fontFamily: 'readexBold', fontSize: 14 }} numberOfLines={1}>
+                      {item.videoId}
+                    </Text>
+                    <Text style={{ fontFamily: 'readexLight', fontSize: 12, color: 'gray' }}>
+                      {new Date(item.timestamp).toLocaleDateString()}
+                    </Text>
                   </View>
-                </View>
+                  <Feather name="chevron-right" size={20} color="lightgray" />
+                </TouchableOpacity>
               )}
-            /> :
-            <Text
-              style={{
-                fontFamily: 'readexLight',
-                fontSize: 12
-              }}
-              className='text-center'
-            >
-              No history yet
-            </Text>
-          }
+            />
+          ) : (
+            <View className="items-center mt-20">
+              <Feather name="clock" size={48} color="lightgray" />
+              <Text style={{ fontFamily: 'readexLight', fontSize: 14, color: 'gray' }} className="mt-4">
+                No recent tracks yet
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>
